@@ -1,11 +1,15 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
 import "dotenv/config";
+import { connectDatabase } from './api/v1/services/database';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// connect to database
+connectDatabase();
 
 // example
 app.get("/", (req: Request, res: Response) => {
