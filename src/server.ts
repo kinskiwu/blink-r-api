@@ -1,9 +1,7 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
-import "dotenv/config";
 import { connectDatabase } from './api/v1/services/database';
 
 const app: Express = express();
-const PORT = process.env.PORT || 4000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -35,4 +33,4 @@ app.use((err: Error & { status?: number }, req: Request, res: Response, next: Ne
     res.status(status).json({ error: message });
 });
 
-export default app.listen(PORT, () => console.log('listening on port ', PORT));
+export default app;
