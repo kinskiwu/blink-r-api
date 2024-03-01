@@ -8,5 +8,30 @@ describe('encodeToBase62', () => {
     expect(typeof result).toBe('string');
     expect(result.length).toBeGreaterThan(0);
   })
+
+  it('returns a known base62 string for a specific unique ID', () => {
+    const uniqueId = 'test';
+    const expectedResult = '7e';//'7e' is the result for encoding 'test'
+    const result = encodeToBase62(uniqueId);
+
+    expect(result).toBe(expectedResult);
+  });
+
+  it('handles an empty string input', () => {
+    const uniqueId = '';
+    const result = encodeToBase62(uniqueId);
+
+    expect(result).toBe('');
+  });
+
+  it('returns different encoded strings for different unique IDs', () => {
+    const uniqueId1 = 'abc';
+    const uniqueId2 = 'def';
+    const result1 = encodeToBase62(uniqueId1);
+    const result2 = encodeToBase62(uniqueId2);
+
+    expect(result1).not.toBe(result2);
+  });
+
 });
 
