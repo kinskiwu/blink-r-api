@@ -1,9 +1,9 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { UrlModel } from '../models/urls.model';
 import { generateShortUrl } from '../services/generateShortUrl';
 import { v4 as uuid } from 'uuid';
 
-export const createShortUrl = async (req: Request, res: Response) => {
+export const createShortUrl = async (req: Request, res: Response, next: NextFunction) => {
     // validate longUrl
     const { longUrl } = req.body;
 
@@ -36,6 +36,9 @@ export const createShortUrl = async (req: Request, res: Response) => {
     // return shortUrlId to client & 201 created
     res.status(201).json({ shortUrlId });
   } catch (err) {
-    res.status(500).json({ error: 'Server error' });
+    next({
+      status: 500,
+      message: 'Server error'
+    })
   }
 };
