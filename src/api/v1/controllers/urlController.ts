@@ -39,7 +39,33 @@ export const createShortUrl = async (req: Request, res: Response, next: NextFunc
   } catch (err) {
     next({
       status: 500,
-      message: 'Server error'
+      message: 'Server error',
+      err
     })
   }
 };
+
+export const redirectToLongUrl = async (req: Request, res: Response, next: NextFunction) => {
+    // validate url
+    const { shortUrlId } = req.params;
+    if(!isValidUrl(shortUrlId)){
+        return res.status(400).json({ error: 'Invalid URL provided.' });
+    };
+
+  try {
+    const urlDocument = await UrlModel.findOne({ "shortUrls.shortUrlId": shortUrlId });
+
+    if (urlDocument) {
+      return res.redirect(301, urlDocument.longUrl);
+    } else {
+      return res.status(404).json({ error: "Short URL not found" });
+    }
+  } catch (err) {
+    next({
+      status: 500,
+      message: 'Server error',
+      err
+    })
+  }
+
+}
