@@ -11,13 +11,12 @@ app.use(express.urlencoded({ extended: true }));
 connectDatabase();
 
 // route users to urls router
-app.get("/api/v1/urls", urlRouter );
+app.use("/api/v1/url", urlRouter );
 
 // example
 app.get("/", (req: Request, res: Response) => {
     res.send({ message: 'hi' });
 });
-
 
 // catch 404
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -27,7 +26,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 // glocal error handler
-app.use((err: Error & { status?: number }, req: Request, res: Response, next: NextFunction) => {
+app.use((err: Error & { status?: number }, req: Request, res: Response) => {
     const status = err.status || 500;
     const message = err.message || 'An error occurred';
     if (process.env.NODE_ENV === 'development') {
