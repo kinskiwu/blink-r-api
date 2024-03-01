@@ -14,11 +14,12 @@ export const createShortUrl = async (req: Request, res: Response) => {
   try {
     // Check if longurl already exists in database
     let urlDocument = await UrlModel.findOne({ longUrl });
+    let shortUrlId;
 
     // if longUrl doesnt exisit, create a new document
     if(!urlDocument){
       const longUrlId = uuid();
-      const shortUrlId = generateShortUrl(longUrlId);
+      shortUrlId = generateShortUrl(longUrlId);
 
       urlDocument = new UrlModel({
         longUrlId,
@@ -28,7 +29,7 @@ export const createShortUrl = async (req: Request, res: Response) => {
 
       await urlDocument.save();
     } else {  // if longUrl exists, add a new shortUrlId to the doc
-      const shortUrlId = generateShortUrl(urlDocument.longUrlId);
+      shortUrlId = generateShortUrl(urlDocument.longUrlId);
       urlDocument.shortUrls.push({ shortUrlId });
       await urlDocument.save();
     }
