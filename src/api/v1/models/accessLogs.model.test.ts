@@ -19,4 +19,6 @@ describe('AccessLog Model Test', () => {
     expect(savedAccessLog.accessTime).toBeDefined();
     expect(savedAccessLog.shortUrlId).toBe('someShortUrlId');
   });
+
+  // todo: more tests to be added
 });
