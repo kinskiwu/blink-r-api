@@ -18,8 +18,5 @@ export async function connectDatabase() {
     console.log("Successfully connected to MongoDB. Ping result:", pingResult);
   } catch (error) {
     console.error("Error connecting to MongoDB:", error);
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
-  }
+  } 
 };
