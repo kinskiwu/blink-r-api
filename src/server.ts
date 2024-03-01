@@ -1,5 +1,6 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
 import { connectDatabase } from './api/v1/services/database';
+import urlRouter from './api/v1/routes/urlRouter';
 
 const app: Express = express();
 
@@ -9,10 +10,14 @@ app.use(express.urlencoded({ extended: true }));
 // connect to database
 connectDatabase();
 
+// route users to urls router
+app.get("/api/v1/urls", urlRouter );
+
 // example
 app.get("/", (req: Request, res: Response) => {
     res.send({ message: 'hi' });
 });
+
 
 // catch 404
 app.use((req: Request, res: Response, next: NextFunction) => {
