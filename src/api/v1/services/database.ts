@@ -15,11 +15,9 @@ export async function connectDatabase() {
 
     // Send a ping to confirm a successful connection
     const pingResult = await client.db("admin").command({ ping: 1 });
-    console.log("Successfully connected to MongoDB. Ping result:", pingResult);
+    return pingResult;
   } catch (error) {
     console.error("Error connecting to MongoDB:", error);
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
+    throw error;
   }
 };
