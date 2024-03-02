@@ -7,11 +7,11 @@ export const createShortUrl = async (req: Request, res: Response, next: NextFunc
   const { longUrl } = req.body;
 
   try {
-    // Check if longurl already exists in database
+    // Check if the url document already exists in database
     let urlDocument = await UrlModel.findOne({ longUrl });
     let shortUrlId;
 
-    // if longUrl doesnt exisit, create a new document
+    // if the url document doesnt exisit, create a new document
     if(!urlDocument){
       const longUrlId = uuid();
       shortUrlId = generateShortUrl(longUrlId);
@@ -24,7 +24,7 @@ export const createShortUrl = async (req: Request, res: Response, next: NextFunc
 
       await urlDocument.save();
     } else {
-      // if longUrl exists, add a new shortUrlId to the doc
+      // if the url document exists, add a new shortUrlId to the doc
       shortUrlId = generateShortUrl(urlDocument.longUrlId);
       urlDocument.shortUrls.push({ shortUrlId });
       await urlDocument.save();
@@ -44,13 +44,13 @@ export const redirectToLongUrl = async (req: Request, res: Response, next: NextF
     const { shortUrlId } = req.params;
 
   try {
-    // check if shortUrl exists in database
+    // check if the url document exists in database
     const urlDocument = await UrlModel.findOne({ "shortUrls.shortUrlId": shortUrlId });
-    //if document doesnt exist, return 404 & error message to user
+    //if the doc doesnt exist, return 404 & error message to user
     if(!urlDocument){
       return res.status(404).json({ error: "Short URL not found" });
     } else {
-    // else, redirect user to longUrl with 301 permanent redirect
+    // if the doc exist, redirect user to longUrl with 301 permanent redirect
       return res.redirect(301, urlDocument.longUrl);
     }
   } catch (err) {
