@@ -3,6 +3,7 @@ import { UrlModel } from '../models/urls.model';
 import { generateShortUrl } from '../services/generateShortUrl';
 import { v4 as uuid } from 'uuid';
 import { AccessLogModel } from '../models/accessLogs.model';
+import { calculateStartDate } from '../services/helpers';
 
 export const createShortUrl = async (req: Request, res: Response, next: NextFunction) => {
   const { longUrl } = req.body;
@@ -30,8 +31,8 @@ export const createShortUrl = async (req: Request, res: Response, next: NextFunc
       urlDocument.shortUrls.push({ shortUrlId });
       await urlDocument.save();
     }
-    // return shortUrl to client & 201 created
-    res.status(201).json({ shortUrl: `www.shorturl/${shortUrlId}` });
+    // return shortUrl to client & 201 created *more user friendly
+    res.status(201).json({ shortUrl: `www.shorturl.com/${shortUrlId}` });
   } catch (err) {
     next({
       status: 500,
@@ -64,24 +65,10 @@ export const redirectToLongUrl = async (req: Request, res: Response, next: NextF
 }
 
 export const generateAnalytics = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { timeFrame } = req.query;
+  const { timeFrame } = req.query;
 
-    // calculate start date
-    let startDate = new Date();
-    switch (timeFrame) {
-      case '24h':
-        startDate.setDate(startDate.getDate() - 1);
-        break;
-      case '7d':
-        startDate.setDate(startDate.getDate() - 7);
-        break;
-      case 'all':
-      default:
-        // if all or no timeFrame is specified, set startDate to 0 to get all records
-        startDate = new Date(0);
-        break;
-    }
+  try {
+    const startDate = calculateStartDate(timeFrame);
 
     // aggregate access counts from the database
     const accessCount = await AccessLogModel.aggregate([
@@ -99,7 +86,7 @@ export const generateAnalytics = async (req: Request, res: Response, next: NextF
     const count = accessCount.length > 0 ? accessCount[0].accessCount : 0;
 
     // Respond with the access count
-    res.status(200).json({ timeFrame: timeFrame || 'all', accessCount: count });
+    res.status(200).json({ timeFrame, accessCount: count });
   } catch (err){
       next({
       status: 500,

@@ -18,3 +18,15 @@ export const encodeToBase62 = (uniqueId: string): string => {
 
 // validate input is a non empty string
 export const isValidInput = (input) => typeof input === 'string' && input.trim() !== '';
+
+// calculate start date based on given time frame
+export const calculateStartDate = (timeFrame: string): Date => {
+  const startDate = new Date();
+  const timeFrameMapping = {
+    '24h': () => startDate.setDate(startDate.getDate() - 1),
+    '7d': () => startDate.setDate(startDate.getDate() - 7),
+    'all': () => new Date(0),
+  };
+
+  return (timeFrameMapping[timeFrame] || timeFrameMapping['all'])();
+};
