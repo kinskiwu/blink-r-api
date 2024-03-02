@@ -6,9 +6,8 @@ import { AccessLogModel } from '../models/accessLogs.model';
 import { calculateStartDate } from '../services/helpers';
 
 export const createShortUrl = async (req: Request, res: Response, next: NextFunction) => {
-  const { longUrl } = req.body;
-
   try {
+    const { longUrl } = req.body;
     // Check if the url document already exists in database
     let urlDocument = await UrlModel.findOne({ longUrl });
     let shortUrlId;
@@ -43,9 +42,8 @@ export const createShortUrl = async (req: Request, res: Response, next: NextFunc
 };
 
 export const redirectToLongUrl = async (req: Request, res: Response, next: NextFunction) => {
-    const { shortUrlId } = req.params;
-
   try {
+    const { shortUrlId } = req.params;
     // check if the url document exists in database
     const urlDocument = await UrlModel.findOne({ "shortUrls.shortUrlId": shortUrlId });
     //if the doc doesnt exist, return 404 & error message to user
@@ -65,9 +63,9 @@ export const redirectToLongUrl = async (req: Request, res: Response, next: NextF
 }
 
 export const generateAnalytics = async (req: Request, res: Response, next: NextFunction) => {
-  const { timeFrame } = req.query;
-
   try {
+    const { timeFrame } = req.body ? req.body : 'all';
+
     const startDate = calculateStartDate(timeFrame);
 
     // aggregate access counts from the database
