@@ -29,8 +29,8 @@ export const createShortUrl = async (req: Request, res: Response, next: NextFunc
       urlDocument.shortUrls.push({ shortUrlId });
       await urlDocument.save();
     }
-    // return shortUrlId to client & 201 created
-    res.status(201).json({ shortUrlId });
+    // return shortUrl to client & 201 created
+    res.status(201).json({ shortUrl: `www.shorturl/${shortUrlId}` });
   } catch (err) {
     next({
       status: 500,

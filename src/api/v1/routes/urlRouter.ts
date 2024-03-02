@@ -1,11 +1,11 @@
 import express from 'express';
 import { createShortUrl, redirectToLongUrl } from '../controllers/urlController';
-import { validateUrl } from '../middleware/validateUrl';
+import { validateUserInput } from '../middleware/validateUserInput';
 
 const urlRouter = express.Router();
 
-urlRouter.post('/shorten', validateUrl, createShortUrl);
+urlRouter.post('/shorten', validateUserInput, createShortUrl);
 
-urlRouter.get('/:shortUrlId', validateUrl, redirectToLongUrl);
+urlRouter.get('/:shortUrlId', validateUserInput, redirectToLongUrl);
 
 export default urlRouter;
