@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { UrlModel } from '../models/urls.model';
 import { generateShortUrl } from '../services/generateShortUrl';
 import { v4 as uuid } from 'uuid';
+import { AccessLogModel } from '../models/accessLogs.model';
 
 export const createShortUrl = async (req: Request, res: Response, next: NextFunction) => {
   const { longUrl } = req.body;
@@ -55,6 +56,52 @@ export const redirectToLongUrl = async (req: Request, res: Response, next: NextF
     }
   } catch (err) {
     next({
+      status: 500,
+      message: 'Server error',
+      err
+    })
+  }
+}
+
+export const generateAnalytics = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { timeFrame } = req.query;
+
+    // calculate start date
+    let startDate = new Date();
+    switch (timeFrame) {
+      case '24h':
+        startDate.setDate(startDate.getDate() - 1);
+        break;
+      case '7d':
+        startDate.setDate(startDate.getDate() - 7);
+        break;
+      case 'all':
+      default:
+        // if all or no timeFrame is specified, set startDate to 0 to get all records
+        startDate = new Date(0);
+        break;
+    }
+
+    // aggregate access counts from the database
+    const accessCount = await AccessLogModel.aggregate([
+      {
+        $match: {
+          accessTime: { $gte: startDate }
+        }
+      },
+      {
+        $count: 'accessCount'
+      }
+    ]);
+
+    // If no records found, return accessCount as 0
+    const count = accessCount.length > 0 ? accessCount[0].accessCount : 0;
+
+    // Respond with the access count
+    res.status(200).json({ timeFrame: timeFrame || 'all', accessCount: count });
+  } catch (err){
+      next({
       status: 500,
       message: 'Server error',
       err
