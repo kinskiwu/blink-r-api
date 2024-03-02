@@ -17,7 +17,17 @@ export const encodeToBase62 = (uniqueId: string): string => {
 }
 
 // validate input is a non empty string
-export const isValidInput = (input) => typeof input === 'string' && input.trim() !== '';
+export const isValidInput = (input: string):boolean => typeof input === 'string' && input.trim() !== '';
+
+// valid longUrl is valid
+export const isValidHttpUrl = ( input: string): boolean => {
+  try {
+    const url = new URL(input);
+    return url.protocol === 'http' || url.protocol === 'https:';
+  } catch (err){
+    return false;
+  }
+}
 
 // calculate start date based on given time frame
 export const calculateStartDate = (timeFrame: string): Date => {
