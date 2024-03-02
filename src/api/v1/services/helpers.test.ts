@@ -40,6 +40,14 @@ describe('isValidUrl', () => {
     expect(isValidUrl('https://www.mockexample.com/path?name=query')).toBe(true);
     expect(isValidUrl('  https://www.mockexample.com/path?name=query  ')).toBe(true);
   });
+
+  test('returns false for invalid strings', () => {
+    expect(isValidUrl('')).toBe(false);
+    expect(isValidUrl(' ')).toBe(false);
+    expect(isValidUrl(null)).toBe(false);
+    expect(isValidUrl(undefined)).toBe(false);
+    expect(isValidUrl(123)).toBe(false);
+  });
 });
 
 
