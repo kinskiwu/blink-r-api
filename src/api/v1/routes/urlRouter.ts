@@ -1,12 +1,12 @@
 import express from 'express';
 import { createShortUrl, generateAnalytics, redirectToLongUrl } from '../controllers/urlController';
-import { validateUserInput } from '../middleware/validateUserInput';
+import { validateLongUrlInput, validateShortUrlInput } from '../middleware/validateUserInputHandler';
 
 const urlRouter = express.Router();
 
-urlRouter.post('/shorten', validateUserInput, createShortUrl);
+urlRouter.post('/shorten', validateLongUrlInput, createShortUrl);
 
-urlRouter.get('/:shortUrlId', validateUserInput, redirectToLongUrl);
+urlRouter.get('/:shortUrlId', validateShortUrlInput, redirectToLongUrl);
 
 urlRouter.get('/analytics', generateAnalytics);
 
