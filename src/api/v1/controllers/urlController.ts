@@ -53,12 +53,14 @@ export const redirectToLongUrl = async (req: Request, res: Response, next: NextF
     };
 
   try {
+    // check if shortUrl exists in database
     const urlDocument = await UrlModel.findOne({ "shortUrls.shortUrlId": shortUrlId });
-
-    if (urlDocument) {
-      return res.redirect(301, urlDocument.longUrl);
-    } else {
+    //if document doesnt exist, return 404 & error message to user
+    if(!urlDocument){
       return res.status(404).json({ error: "Short URL not found" });
+    } else {
+    // else, redirect user to longUrl with 301 permanent redirect
+      return res.redirect(301, urlDocument.longUrl);
     }
   } catch (err) {
     next({
@@ -67,5 +69,4 @@ export const redirectToLongUrl = async (req: Request, res: Response, next: NextF
       err
     })
   }
-
 }
