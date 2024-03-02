@@ -2,11 +2,12 @@ import { Request, Response, NextFunction } from 'express';
 import { UrlModel } from '../models/urls.model';
 import { generateShortUrl } from '../services/generateShortUrl';
 import { v4 as uuid } from 'uuid';
+import { AccessLogModel } from '../models/accessLogs.model';
+import { calculateStartDate } from '../services/helpers';
 
 export const createShortUrl = async (req: Request, res: Response, next: NextFunction) => {
-  const { longUrl } = req.body;
-
   try {
+    const { longUrl } = req.body;
     // Check if the url document already exists in database
     let urlDocument = await UrlModel.findOne({ longUrl });
     let shortUrlId;
@@ -29,8 +30,8 @@ export const createShortUrl = async (req: Request, res: Response, next: NextFunc
       urlDocument.shortUrls.push({ shortUrlId });
       await urlDocument.save();
     }
-    // return shortUrl to client & 201 created
-    res.status(201).json({ shortUrl: `www.shorturl/${shortUrlId}` });
+    // return shortUrl to client & 201 created *more user friendly
+    res.status(201).json({ shortUrl: `www.shorturl.com/${shortUrlId}` });
   } catch (err) {
     next({
       status: 500,
@@ -41,9 +42,8 @@ export const createShortUrl = async (req: Request, res: Response, next: NextFunc
 };
 
 export const redirectToLongUrl = async (req: Request, res: Response, next: NextFunction) => {
-    const { shortUrlId } = req.params;
-
   try {
+    const { shortUrlId } = req.params;
     // check if the url document exists in database
     const urlDocument = await UrlModel.findOne({ "shortUrls.shortUrlId": shortUrlId });
     //if the doc doesnt exist, return 404 & error message to user
@@ -55,6 +55,38 @@ export const redirectToLongUrl = async (req: Request, res: Response, next: NextF
     }
   } catch (err) {
     next({
+      status: 500,
+      message: 'Server error',
+      err
+    })
+  }
+}
+
+export const generateAnalytics = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { timeFrame } = req.body ? req.body : 'all';
+
+    const startDate = calculateStartDate(timeFrame);
+
+    // aggregate access counts from the database
+    const accessCount = await AccessLogModel.aggregate([
+      {
+        $match: {
+          accessTime: { $gte: startDate }
+        }
+      },
+      {
+        $count: 'accessCount'
+      }
+    ]);
+
+    // If no records found, return accessCount as 0
+    const count = accessCount.length > 0 ? accessCount[0].accessCount : 0;
+
+    // Respond with the access count
+    res.status(200).json({ timeFrame, accessCount: count });
+  } catch (err){
+      next({
       status: 500,
       message: 'Server error',
       err

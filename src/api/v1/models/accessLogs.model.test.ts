@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import { AccessLogModel } from './accessLogs.model';
 import { setupDB, teardownDB, clearDB } from '../../../tests/jest_mongodb_setup';
 
