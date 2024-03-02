@@ -15,3 +15,6 @@ export const encodeToBase62 = (uniqueId: string): string => {
 
   return encodedString;
 }
+
+// validate url is a string
+export const isValidUrl = (url) => typeof url === 'string' && url.trim() !== '';

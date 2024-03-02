@@ -1,4 +1,4 @@
-import { encodeToBase62 } from "./helpers";
+import { encodeToBase62, isValidUrl } from "./helpers";
 
 describe('encodeToBase62', () => {
   it('correctly encodes a given uniqueId to a base62 string', () => {
@@ -32,6 +32,22 @@ describe('encodeToBase62', () => {
 
     expect(result1).not.toBe(result2);
   });
-
 });
+
+describe('isValidUrl', () => {
+  test('returns true for valid strings', () => {
+    expect(isValidUrl('http://mockexample.com')).toBe(true);
+    expect(isValidUrl('https://www.mockexample.com/path?name=query')).toBe(true);
+    expect(isValidUrl('  https://www.mockexample.com/path?name=query  ')).toBe(true);
+  });
+
+  test('returns false for invalid strings', () => {
+    expect(isValidUrl('')).toBe(false);
+    expect(isValidUrl(' ')).toBe(false);
+    expect(isValidUrl(null)).toBe(false);
+    expect(isValidUrl(undefined)).toBe(false);
+    expect(isValidUrl(123)).toBe(false);
+  });
+});
+
 

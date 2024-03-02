@@ -1,10 +1,12 @@
-import request, {Response} from 'supertest';
+import request from 'supertest';
 import app from './server';
 
-describe('GET /', () => {
-  it('test example', async () => {
-    const response: Response = await request(app).get('/');
-    expect(response.statusCode).toBe(200);
-    expect(response.body).toEqual({ message: 'hi' });
+describe('Not Found Error Handler', () => {
+  it('should return 404 for non-existent routes', async () => {
+    const res = await request(app).get('/non-existent-route');
+
+    expect(res.status).toBe(404);
+    expect(res.body.error).toBe('Not Found');
   });
 });
+
