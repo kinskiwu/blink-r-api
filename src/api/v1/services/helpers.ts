@@ -20,7 +20,7 @@ export const encodeToBase62 = (uniqueId: string): string => {
 export const isValidInput = (input) => typeof input === 'string' && input.trim() !== '';
 
 // calculate start date based on given time frame
-export const calculateStartDate = (timeFrame?: string): Date => {
+export const calculateStartDate = (timeFrame: string): Date => {
   const startDate = new Date();
 // default handles any unexpected timeFrame values to 'all'
   switch (timeFrame) {
