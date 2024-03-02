@@ -1,4 +1,4 @@
-import { encodeToBase62, isValidHttpUrl, isValidInput } from "./helpers";
+import { encodeToBase62, isValidHttpUrl, isValidShortUrl } from "./helpers";
 
 describe('encodeToBase62', () => {
   it('correctly encodes a given uniqueId to a base62 string', () => {
@@ -34,11 +34,16 @@ describe('encodeToBase62', () => {
   });
 });
 
-describe('isValidInput', () => {
-  test('returns true for valid strings', () => {
-    expect(isValidInput('http://mockexample.com')).toBe(true);
-    expect(isValidInput('https://www.mockexample.com/path?name=query')).toBe(true);
-    expect(isValidInput('  https://www.mockexample.com/path?name=query  ')).toBe(true);
+describe('isValidShortUrl', () => {
+  test('returns true for valid shortUrl', () => {
+    expect(isValidShortUrl('mockexample')).toBe(true);
+    expect(isValidShortUrl('123')).toBe(true);
+  });
+
+  test('returns false for invalid shortUrl', () => {
+    expect(isValidShortUrl('')).toBe(false);
+    expect(isValidShortUrl('mock$example')).toBe(false);
+    expect(isValidShortUrl('1 23')).toBe(false);
   });
 
 });
