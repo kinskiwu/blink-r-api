@@ -23,7 +23,7 @@ export const isValidInput = (input: string):boolean => typeof input === 'string'
 export const isValidHttpUrl = ( input: string): boolean => {
   try {
     const url = new URL(input);
-    return url.protocol === 'http' || url.protocol === 'https:';
+    return url.protocol === 'http:' || url.protocol === 'https:';
   } catch (err){
     return false;
   }
