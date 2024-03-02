@@ -29,7 +29,8 @@ export const createShortUrl = async (req: Request, res: Response, next: NextFunc
       });
 
       await urlDocument.save();
-    } else {  // if longUrl exists, add a new shortUrlId to the doc
+    } else {
+      // if longUrl exists, add a new shortUrlId to the doc
       shortUrlId = generateShortUrl(urlDocument.longUrlId);
       urlDocument.shortUrls.push({ shortUrlId });
       await urlDocument.save();

@@ -8,7 +8,7 @@ const client = new MongoClient(mongoDBUrl, {
   serverApi: ServerApiVersion.v1,
 });
 
-export async function connectDatabase() {
+export const connectDatabase = async () => {
   try {
     // Connect the client to the server
     await client.connect();
@@ -16,8 +16,8 @@ export async function connectDatabase() {
     // Send a ping to confirm a successful connection
     const pingResult = await client.db("admin").command({ ping: 1 });
     return pingResult;
-  } catch (error) {
-    console.error("Error connecting to MongoDB:", error);
-    throw error;
+  } catch (err) {
+    console.error("Error connecting to MongoDB:", err);
+
   }
 };
