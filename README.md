@@ -83,7 +83,7 @@ This document outlines the design and architecture of the Short URL API, a syste
           - **Body:**
           ```json
         {
-          "shortenUrl": "https://www.shorturl.com/Ev"
+          "shortUrl": "https://www.shorturl.com/Ev"
         }
     - **Redirect URL**: `GET /:shortUrlId`
       - **Request Path Params:**
