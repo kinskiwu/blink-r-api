@@ -5,7 +5,11 @@ import { v4 as uuid } from 'uuid';
 import { AccessLogModel } from '../models/accessLogs.model';
 import { calculateStartDate } from '../services/helpers';
 
-export const createShortUrl = async (req: Request, res: Response, next: NextFunction) => {
+export const createShortUrl = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { longUrl } = req.body;
     // Check if the url document already exists in database
@@ -13,7 +17,7 @@ export const createShortUrl = async (req: Request, res: Response, next: NextFunc
     let shortUrlId;
 
     // if the url document doesnt exisit, create a new document
-    if(!urlDocument){
+    if (!urlDocument) {
       const longUrlId = uuid();
       shortUrlId = generateShortUrl(longUrlId);
 
@@ -36,37 +40,47 @@ export const createShortUrl = async (req: Request, res: Response, next: NextFunc
     next({
       status: 500,
       message: 'Server error',
-      err
-    })
+      err,
+    });
   }
 };
 
-export const redirectToLongUrl = async (req: Request, res: Response, next: NextFunction) => {
+export const redirectToLongUrl = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { shortUrlId } = req.params;
     // check if the url document exists in database
-    const urlDocument = await UrlModel.findOne({ "shortUrls.shortUrlId": shortUrlId });
+    const urlDocument = await UrlModel.findOne({
+      'shortUrls.shortUrlId': shortUrlId,
+    });
     //if the doc doesnt exist, return 404 & error message to user
-    if(!urlDocument){
-      return res.status(404).json({ error: "Short URL not found" });
+    if (!urlDocument) {
+      return res.status(404).json({ error: 'Short URL not found' });
     } else {
-    //if the doc exist, add a new access log to database
+      //if the doc exist, add a new access log to database
       const accessLogDocument = new AccessLogModel({ shortUrlId });
       await accessLogDocument.save();
 
-    // redirect user to longUrl with 301 permanent redirect
+      // redirect user to longUrl with 301 permanent redirect
       return res.redirect(301, urlDocument.longUrl);
     }
   } catch (err) {
     next({
       status: 500,
       message: 'Server error',
-      err
-    })
+      err,
+    });
   }
-}
+};
 
-export const generateAnalytics = async (req: Request, res: Response, next: NextFunction) => {
+export const generateAnalytics = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     // default timeFrame to 'all' if no input provided
     const { shortUrlId, timeFrame = 'all' } = req.body;
@@ -78,12 +92,12 @@ export const generateAnalytics = async (req: Request, res: Response, next: NextF
       {
         $match: {
           shortUrlId,
-          accessTime: { $gte: startDate }
-        }
+          accessTime: { $gte: startDate },
+        },
       },
       {
-        $count: 'accessCount'
-      }
+        $count: 'accessCount',
+      },
     ]);
 
     // If no records found, return accessCount as 0
@@ -91,11 +105,11 @@ export const generateAnalytics = async (req: Request, res: Response, next: NextF
 
     // Respond with the access count
     res.status(200).json({ timeFrame, accessCount: count });
-  } catch (err){
-      next({
+  } catch (err) {
+    next({
       status: 500,
       message: 'Server error',
-      err
-    })
+      err,
+    });
   }
-}
+};

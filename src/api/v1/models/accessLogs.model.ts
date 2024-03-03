@@ -10,9 +10,12 @@ const AccessLogSchema = new Schema(
     timeseries: {
       timeField: 'accessTime',
       metaField: 'shortUrlId',
-      granularity: 'seconds'
+      granularity: 'seconds',
     },
   }
 );
 
-export const AccessLogModel = mongoose.model<AccessLog>('AccessLog', AccessLogSchema);
+export const AccessLogModel = mongoose.model<AccessLog>(
+  'AccessLog',
+  AccessLogSchema
+);

@@ -1,6 +1,13 @@
 import express from 'express';
-import { createShortUrl, generateAnalytics, redirectToLongUrl } from '../controllers/urlController';
-import { validateLongUrlInput, validateShortUrlInput } from '../middleware/validateUserInputHandler';
+import {
+  createShortUrl,
+  generateAnalytics,
+  redirectToLongUrl,
+} from '../controllers/urlController';
+import {
+  validateLongUrlInput,
+  validateShortUrlInput,
+} from '../middleware/validateUserInputHandler';
 
 const urlRouter = express.Router();
 

@@ -1,5 +1,9 @@
 import { AccessLogModel } from './accessLogs.model';
-import { setupDB, teardownDB, clearDB } from '../../../tests/jest_mongodb_setup';
+import {
+  setupDB,
+  teardownDB,
+  clearDB,
+} from '../../../tests/jest_mongodb_setup';
 
 beforeAll(async () => await setupDB());
 
@@ -10,7 +14,7 @@ afterAll(async () => await teardownDB());
 describe('AccessLog Model Test', () => {
   it('create & save access log successfully', async () => {
     const validAccessLog = new AccessLogModel({
-      shortUrlId: 'someShortUrlId'
+      shortUrlId: 'someShortUrlId',
     });
     const savedAccessLog = await validAccessLog.save();
 
