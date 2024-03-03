@@ -2,14 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "startServer.js",
+      "src": "index.js",
       "use": "@now/node"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "startServer.js"
+      "dest": "index.js"
     }
   ]
 }
