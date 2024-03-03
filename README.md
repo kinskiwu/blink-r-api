@@ -1,16 +1,16 @@
-# ShortenURL API System Design Documentation
+# Short URL API System Design Documentation
 
 ## Overview
 
-This document outlines the design and architecture of the ShortenURL API, a system designed to provide URL shortening, redirection, and analytics services. It includes functional and non-functional requirements, assumptions, design decisions, API architecture, and instructions for using the API via `curl`.
+This document outlines the design and architecture of the Short URL API, a system designed to provide URL shortening, redirection, and analytics services. It includes functional and non-functional requirements, assumptions, design decisions, API architecture, instructions for using the API via `curl` and strech features.
 
 ## Requirements
 
 ### Functional Requirements
 
-- **URL Shortening**: Users can input a long URL, and the server returns a shortened URL.
-- **URL Redirection**: Users clicking on a shortened URL are redirected to the corresponding long URL.
-- **Analytics**: Track how often a shortened URL is accessed within specified time frames (last 24 hours, past week, all-time).
+- **URL Shortening**: Users can input a long URL, and the server returns a short URL.
+- **URL Redirection**: Users clicking on a short URL are redirected to the corresponding long URL.
+- **Analytics**: Track how often a short URL is accessed within specified time frames (last 24 hours, past week, all-time).
 - **Data Persistency**: All associated data must be persistent.
 - **Testability**: Testable via `curl`.
 
@@ -18,7 +18,6 @@ This document outlines the design and architecture of the ShortenURL API, a syst
 
 - **Performance**: Very low latency for redirects (< 10ms).
 - **Scalability**: Capable of supporting millions of short URLs in the future.
-- **Availability**: High availability for all services.
 - **Security**: Ensure the uniqueness and privacy of short URLs.
 
 ## Assumptions
@@ -51,7 +50,7 @@ This document outlines the design and architecture of the ShortenURL API, a syst
   - **Option 2: Unique ID Generator + Base 62 Conversion**
     - Advantages: Collision risk elimination, simple implementation, quick deployment
     - Disadvantages: Increased server load when app scales, security concerns with conversion pattern
-    - Decision: Chose Unique ID Generator + Base 62 Conversion
+  - **Decision:** Unique ID Generator + Base 62 Conversion
 
 - **Database Selection**:
   - **Option 1: SQL Database**
@@ -60,13 +59,13 @@ This document outlines the design and architecture of the ShortenURL API, a syst
   - **Option 2: NoSQL Database**
     - Advantages: Performance, scalability, flexible schema, efficient analytics with MongoDB's time-series
     - Disadvantages: Less mature ecosystem, limited query capabilities
-    - Decision: Chose NoSQL Database (MongoDB)
+  - **Decision:** NoSQL Database (MongoDB)
 
 - **Programming Languages, Libraries, and Frameworks**:
   - Team Experience: Proficiency in TypeScript/JavaScript
     - Advantage: Quickens development process
     - Maintainability: TypeScript's complexity is offset by long-term benefits
-    - Decision: Adopted TypeScript, Node.js, and Express
+  - **Decision:** TypeScript, Node.js, and Express
 
 ## API Architecture
 
@@ -88,7 +87,7 @@ This document outlines the design and architecture of the ShortenURL API, a syst
         }
     - **Redirect URL**: `GET /:shortUrlId`
       - **Request Path Params:**
-          - `shortenUrlId` (e.g., `/H3`)
+          - `shortUrlId` (e.g., `/H3`)
       - **Response:**
           - **Status Code:** 301 Permanent Redirect
           - **Header:** *{Location: https://www.google.com}*
@@ -136,7 +135,36 @@ const AccessLogSchema = new Schema({
 });
 ```
 
+## Stretch Features
+
+### Maintainability
+
+- **Automated Testing:** Implement comprehensive unit and integration tests to ensure code changes do not break existing functionality.
+- **Continuous Integration/Continuous Deployment (CI/CD):** Set up CI/CD pipelines to automate testing and deployment processes, ensuring that only thoroughly tested code is deployed.
+
+### Performance
+
+- **Caching Strategy:** Implement an in-memory caching layer using Redis to store and quickly retrieve high-traffic URLs and pre-aggregated analytics data, with regular updates and TTL policies (e.g.1 hour) ensuring data freshness and reduced database queries for enhanced performance.
+- **Load Balancing:** Use load balancers to distribute traffic evenly across servers, preventing any single server from becoming a bottleneck.
+
+### Security
+
+- **Rate Limiting:** Implement rate limiting to prevent abuse and mitigate DDoS attacks.
+- **HTTPS Enforcement:** Ensure all data is transmitted securely over HTTPS to protect against man-in-the-middle attacks.
+- **Data Sanitization:** Employ strict input validation and sanitization to protect against SQL injection, XSS, and other injection attacks.
+
+## Availability
+- **Redundancy:** Deploy the application across multiple data centers to ensure availability in the event of a data center failure.
+
+## Scalability
+
+- **Database Sharding:** Implement database sharding to distribute data across multiple databases, improving read/write performance as the dataset grows.
+
+
 ## How to Use the API with `curl`
+
+Make sure to replace placeholders like `<full-long-url>`, `<short-url-id>`, and `<time-frame>` with actual values when using these commands.
+
 
 ### Shorten URL
 To shorten a long URL, use the following command:
@@ -145,7 +173,7 @@ curl -X POST https://short-url-api-kinski.onrender.com/api/v1/url/shorten -H "Co
 ```
 Example:
 ```bash
-curl -X POST https://short-url-api-kinski.onrender.com/api/v1/url/shorten -H "Content-Type: application/json" -d '{"longUrl": "https://www.onoursleeves.org/mental-wellness-tools-guides/icon-collection/happy-face"}'
+curl -X POST https://short-url-api-kinski.onrender.com/api/v1/url/shorten -H "Content-Type: application/json" -d '{"longUrl": "https://www.google.com"}'
 ```
 
 ### Redirect URL
@@ -167,32 +195,3 @@ Example:
 ```bash
 curl -X GET "https://short-url-api-kinski.onrender.com/api/v1/url/analytics?shortUrlId=H3&timeFrame=24h"
 ```
-
-```vbnet
-Make sure to replace placeholders like <full-long-url>, <short-url-id>, and <ime-frame> with actual values when using these commands.
-```
-
-## Stretch Features
-
-### Maintainability
-
-- **Automated Testing:** Implement comprehensive unit and integration tests to ensure code changes do not break existing functionality.
-- **Continuous Integration/Continuous Deployment (CI/CD):** Set up CI/CD pipelines to automate testing and deployment processes, ensuring that only thoroughly tested code is deployed.
-
-### Performance
-
-- **Caching Strategy:** Implement advanced caching mechanisms, such as edge caching, to reduce database load and improve response times for frequently accessed URLs.
-- **Load Balancing:** Use load balancers to distribute traffic evenly across servers, preventing any single server from becoming a bottleneck.
-
-### Security
-
-- **Rate Limiting:** Implement rate limiting to prevent abuse and mitigate DDoS attacks.
-- **HTTPS Enforcement:** Ensure all data is transmitted securely over HTTPS to protect against man-in-the-middle attacks.
-- **Data Sanitization:** Employ strict input validation and sanitization to protect against SQL injection, XSS, and other injection attacks.
-
-## Availability
-- **Redundancy:** Deploy the application across multiple data centers to ensure availability in the event of a data center failure.
-
-## Scalability
-
-- **Database Sharding:** Implement database sharding to distribute data across multiple databases, improving read/write performance as the dataset grows.
