@@ -1,7 +1,7 @@
 {
   "name": "short_url",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "startServer.js",
   "description": "",
   "repository": "https://github.com/kinskiwu/short_url.git",
   "author": "Jiaxin (Kinski) Wu <kinskywu@gmail.com>",
