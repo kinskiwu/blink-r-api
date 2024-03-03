@@ -9,7 +9,8 @@ const AccessLogSchema = new Schema(
   {
     timeseries: {
       timeField: 'accessTime',
-      metaField: 'shortUrlId'
+      metaField: 'shortUrlId',
+      granularity: 'seconds'
     },
   }
 );
