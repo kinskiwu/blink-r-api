@@ -19,7 +19,7 @@ export const clearDB = async () => {
 
   for (const key in collections) {
     const collection = collections[key];
-    if(collection){
+    if (collection) {
       await collection.deleteMany({});
     }
   }

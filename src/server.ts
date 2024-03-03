@@ -4,18 +4,19 @@ import { globalErrorHandler } from './api/v1/middleware/globalErrorHandler';
 
 const app: Express = express();
 
+// middlewares for request parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// route users to urls router
-app.use("/api/v1/url", urlRouter );
+// routing middle ware for url related endpoint
+app.use('/api/v1/url', urlRouter);
 
-// catch 404 error handler
-app.use((req : Request, res : Response) => {
+// middleware for handling 404
+app.use((req: Request, res: Response) => {
   res.status(404).json({ error: 'Not Found' });
 });
 
-// global error handler
+// moddleware for gloabl error handling
 app.use(globalErrorHandler);
 
 export default app;
