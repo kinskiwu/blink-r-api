@@ -4,7 +4,7 @@ import { setupDB, teardownDB, clearDB } from './jest_mongodb_setup';
 
 beforeAll(async () => await setupDB());
 
-afterEach(async () => await clearDB());
+// afterEach(async () => await clearDB());
 
 afterAll(async () => await teardownDB());
 
@@ -27,6 +27,27 @@ describe('URL Shortening API', () => {
 
       expect(response.status).toBe(201);
       expect(response.body).toHaveProperty('shortUrl');
+    });
+  });
+
+  describe('GET /api/v1/url/:shortUrlId', () => {
+    it('should return either 400 or 404 when input an invalidShortUrlId', async () => {
+      const invalidShortUrlId1 = 'thisIdDoesntExist';
+      const invalidShortUrlId2 = '$123';
+      const invalidShortUrlId3 = '';
+      const response1 = await request(app).get(
+        `/api/v1/url/${invalidShortUrlId1}`
+      );
+      const response2 = await request(app).get(
+        `/api/v1/url/${invalidShortUrlId2}`
+      );
+      const response3 = await request(app).get(
+        `/api/v1/url/${invalidShortUrlId3}`
+      );
+
+      expect(response1.status).toBe(404);
+      expect(response2.status).toBe(400);
+      expect(response3.status).toBe(404);
     });
   });
 });
