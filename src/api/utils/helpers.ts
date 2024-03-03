@@ -50,10 +50,10 @@ export const isValidHttpUrl = (input: string): boolean => {
 
 /**
  * Calculates the start date from the current date based on the specified time frame.
- * @param timeFrame The time frame to calculate the start date for ('24h' or '7d').
+ * @param timeFrame The time frame to calculate the start date for ('24h' or '7d').Default to 'all' if empty string provided.
  * @returns The calculated start date.
  */
-export const calculateStartDate = (timeFrame: string): Date => {
+export const calculateStartDate = (timeFrame: string = 'all'): Date => {
   const currentDate = new Date();
   // default handles any unexpected timeFrame values to 'all'
   switch (timeFrame) {
