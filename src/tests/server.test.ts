@@ -31,7 +31,7 @@ describe('URL Shortening API', () => {
   });
 
   describe('GET /api/v1/url/:shortUrlId', () => {
-    it('should return either 400 or 404 when input an invalidShortUrlId', async () => {
+    it('should return either 400 (or 404 if empty) when input an invalidShortUrlId', async () => {
       const invalidShortUrlId1 = 'thisIdDoesntExist';
       const invalidShortUrlId2 = '$123';
       const invalidShortUrlId3 = '';
@@ -45,9 +45,21 @@ describe('URL Shortening API', () => {
         `/api/v1/url/${invalidShortUrlId3}`
       );
 
-      expect(response1.status).toBe(404);
+      expect(response1.status).toBe(400);
       expect(response2.status).toBe(400);
       expect(response3.status).toBe(404);
+    });
+  });
+
+  describe('GET /api/v1/url/analytics', () => {
+    it('should return analytics data', async () => {
+      const shortUrlIdNotExist = 'Hv';
+      const timeFrame = '24h';
+      const response = await request(app)
+        .get('/api/v1/url/analytics')
+        .query({ shortUrlId : shortUrlIdNotExist, timeFrame });
+
+      expect(response.status).toBe(400);
     });
   });
 });
