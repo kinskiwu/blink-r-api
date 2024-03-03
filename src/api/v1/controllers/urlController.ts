@@ -3,8 +3,14 @@ import { UrlModel } from '../models/urls.model';
 import { generateShortUrl } from '../services/generateShortUrl';
 import { v4 as uuid } from 'uuid';
 import { AccessLogModel } from '../models/accessLogs.model';
-import { calculateStartDate } from '../services/helpers';
+import { calculateStartDate } from '../../utils/helpers';
 
+/**
+ * Creates a short url for a given long url and stores it in the database.
+ * @param req - The request object containing the long url.
+ * @param res - The response object.
+ * @param next - The next middleware function in the stack.
+ */
 export const createShortUrl = async (
   req: Request,
   res: Response,
@@ -12,11 +18,9 @@ export const createShortUrl = async (
 ) => {
   try {
     const { longUrl } = req.body;
-    // Check if the url document already exists in database
     let urlDocument = await UrlModel.findOne({ longUrl });
     let shortUrlId;
 
-    // if the url document doesnt exisit, create a new document
     if (!urlDocument) {
       const longUrlId = uuid();
       shortUrlId = generateShortUrl(longUrlId);
@@ -29,22 +33,27 @@ export const createShortUrl = async (
 
       await urlDocument.save();
     } else {
-      // if the url document exists, add a new shortUrlId to the doc
-      shortUrlId = generateShortUrl(urlDocument.longUrlId);
+      shortUrlId = generateShortUrl();
       urlDocument.shortUrls.push({ shortUrlId });
       await urlDocument.save();
     }
-    // return shortUrl to client & 201 created *more user friendly
+
     res.status(201).json({ shortUrl: `www.shorturl.com/${shortUrlId}` });
   } catch (err) {
     next({
       status: 500,
-      message: 'Server error',
+      message: 'Server error encountered while creating short URL.',
       err,
     });
   }
 };
 
+/**
+ * Redirects a short url to its corresponding long url.
+ * @param req - The request object containing the short url ID.
+ * @param res - The response object.
+ * @param next - The next middleware function in the stack.
+ */
 export const redirectToLongUrl = async (
   req: Request,
   res: Response,
@@ -52,42 +61,43 @@ export const redirectToLongUrl = async (
 ) => {
   try {
     const { shortUrlId } = req.params;
-    // check if the url document exists in database
+
     const urlDocument = await UrlModel.findOne({
       'shortUrls.shortUrlId': shortUrlId,
     });
-    //if the doc doesnt exist, return 404 & error message to user
+
     if (!urlDocument) {
       return res.status(404).json({ error: 'Short URL not found' });
     } else {
-      //if the doc exist, add a new access log to database
       const accessLogDocument = new AccessLogModel({ shortUrlId });
       await accessLogDocument.save();
 
-      // redirect user to longUrl with 301 permanent redirect
       return res.redirect(301, urlDocument.longUrl);
     }
   } catch (err) {
     next({
       status: 500,
-      message: 'Server error',
+      message: 'Server error encountered while redirecting short URL.',
       err,
     });
   }
 };
 
+/**
+ * Generates analytics for a short url based on a specified time frame.
+ * @param req - The request object containing the short url ID and the time frame.
+ * @param res - The response object.
+ * @param next - The next middleware function in the stack.
+ */
 export const generateAnalytics = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    // default timeFrame to 'all' if no input provided
     const { shortUrlId, timeFrame = 'all' } = req.body;
-
     const startDate = calculateStartDate(timeFrame);
 
-    // aggregate access counts from the database
     const accessCount = await AccessLogModel.aggregate([
       {
         $match: {
@@ -100,15 +110,12 @@ export const generateAnalytics = async (
       },
     ]);
 
-    // If no records found, return accessCount as 0
     const count = accessCount.length > 0 ? accessCount[0].accessCount : 0;
-
-    // Respond with the access count
     res.status(200).json({ timeFrame, accessCount: count });
   } catch (err) {
     next({
       status: 500,
-      message: 'Server error',
+      message: 'Server error encountered while generating analytics.',
       err,
     });
   }
