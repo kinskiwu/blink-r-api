@@ -9,4 +9,3 @@ describe('Not Found Error Handler', () => {
     expect(res.body.error).toBe('Not Found');
   });
 });
-
