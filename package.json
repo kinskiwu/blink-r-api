@@ -9,7 +9,7 @@
   "license": "MIT",
   "scripts": {
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
+    "deploy": "gh-pages -d dist",
     "dev": "NODE_ENV=development nodemon src/startServer.ts --exec ts-node src/startServer.ts",
     "start": "NODE_ENV=production node ./dist/startServer.js",
     "build": "rimraf ./dist && tsc && tsc-alias",
