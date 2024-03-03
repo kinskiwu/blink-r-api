@@ -1,5 +1,5 @@
 import request from 'supertest';
-import app from './server';
+import app from '../';
 
 describe('Not Found Error Handler', () => {
   it('should return 404 for non-existent routes', async () => {
