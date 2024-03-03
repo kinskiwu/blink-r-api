@@ -95,7 +95,7 @@ export const generateAnalytics = async (
   next: NextFunction
 ) => {
   try {
-    const { shortUrlId, timeFrame = 'all' } = req.body;
+    const { shortUrlId, timeFrame = 'all' } = req.params;
     const startDate = calculateStartDate(timeFrame);
 
     const accessCount = await AccessLogModel.aggregate([
