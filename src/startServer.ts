@@ -1,12 +1,13 @@
 import app from './server';
 import "dotenv/config";
 import { connectDatabase } from './api/v1/services/database';
+import mongoose from 'mongoose';
 
 const PORT = process.env.PORT || 4000;
 
 const startServer = async () => {
   // connect to database
-  const client = await connectDatabase();
+  await connectDatabase();
 
   // start listening to port
   const server = app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
@@ -15,7 +16,7 @@ const startServer = async () => {
   process.on('SIGINT', async () => {
     console.log('SIGINT signal received: closing MongoDB connection');
     // close database connection
-    await client.close();
+    await mongoose.disconnect();
     console.log('MongoDB connection closed.');
     // close server
     server.close(() => {

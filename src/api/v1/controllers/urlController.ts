@@ -50,7 +50,11 @@ export const redirectToLongUrl = async (req: Request, res: Response, next: NextF
     if(!urlDocument){
       return res.status(404).json({ error: "Short URL not found" });
     } else {
-    // if the doc exist, redirect user to longUrl with 301 permanent redirect
+    //if the doc exist, add a new access log to database
+      const accessLogDocument = new AccessLogModel({ shortUrlId });
+      await accessLogDocument.save();
+
+    // redirect user to longUrl with 301 permanent redirect
       return res.redirect(301, urlDocument.longUrl);
     }
   } catch (err) {

@@ -7,15 +7,15 @@
   "author": "Jiaxin (Kinski) Wu <kinskywu@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon src/startServer.ts --exec ts-node src/startServer.ts",
-    "start": "node ./dist/startServer.js",
+    "dev": "NODE_ENV=development nodemon src/startServer.ts --exec ts-node src/startServer.ts",
+    "start": "NODE_ENV=production node ./dist/startServer.js",
     "build": "rimraf ./dist && tsc && tsc-alias",
     "lint": "eslint ./src --ext .ts",
     "lint:fix": "eslint ./src --fix --ext .ts",
     "format:all": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts)\"",
     "format:check": "prettier --ignore-path .gitignore --check \"**/*.+(js|ts)\"",
-    "test": "jest",
-    "test:watch": "jest --watch"
+    "test": "NODE_ENV=test jest",
+    "test:watch": "NODE_ENV=test jest --watch"
   },
   "jest": {
     "preset": "ts-jest",
