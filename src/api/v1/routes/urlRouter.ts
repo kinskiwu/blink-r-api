@@ -5,9 +5,8 @@ import { validateLongUrlInput, validateShortUrlInput } from '../middleware/valid
 const urlRouter = express.Router();
 
 urlRouter.post('/shorten', validateLongUrlInput, createShortUrl);
+urlRouter.get('/analytics', generateAnalytics);
 
 urlRouter.get('/:shortUrlId', validateShortUrlInput, redirectToLongUrl);
-
-urlRouter.get('/analytics', generateAnalytics);
 
 export default urlRouter;
