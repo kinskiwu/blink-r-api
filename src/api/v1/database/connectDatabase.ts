@@ -2,12 +2,14 @@ import mongoose from 'mongoose';
 import 'dotenv/config';
 
 const mongoDBUrl = process.env.MONGODB_URL;
-// throw error if env variable for mongodb url not set
+// validate existence of mongodb connection url
 if (!mongoDBUrl) {
   throw new Error('MONGODB_URL environment variable is not set.');
 }
 
-// function to connect to mongodb
+/**
+ * Establishes a connection to the mongodb database.
+ */
 export const connectDatabase = async () => {
   try {
     await mongoose.connect(mongoDBUrl);
