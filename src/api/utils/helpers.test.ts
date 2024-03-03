@@ -32,6 +32,16 @@ describe('encodeToBase62', () => {
 
     expect(result1).not.toBe(result2);
   });
+
+  it('the encoded string should be less than or equal to 7 characters', () => {
+    const uniqueId1 = '68f2f6ea-0676-47fc-b998-5e41dedcf2f7';
+    const uniqueId2 = 'f8a42fc1-264f-4b90-9176-eba2cd92738c';
+    const result1 = encodeToBase62(uniqueId1);
+    const result2 = encodeToBase62(uniqueId2);
+
+    expect(result1.length).toBeLessThanOrEqual(7);
+    expect(result2.length).toBeLessThanOrEqual(7);
+  });
 });
 
 describe('isValidShortUrl', () => {
