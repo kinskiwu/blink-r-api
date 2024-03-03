@@ -8,6 +8,11 @@ const app: Express = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// deployment confirmation msg
+app.get('/', (req, res) => {
+  res.send('Hey this is my API running 🥳');
+});
+
 // routing middle ware for url related endpoint
 app.use('/api/v1/url', urlRouter);
 

@@ -21,7 +21,7 @@
     "noImplicitAny": false,
 
     /* Directory */
-    "outDir": "dist",
+    "outDir": "./dist",
     "rootDir": "./src",
     "baseUrl": "./",
     "paths": {

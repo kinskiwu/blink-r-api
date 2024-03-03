@@ -1,4 +1,4 @@
-import app from './server';
+import app from './';
 import 'dotenv/config';
 import { connectDatabase } from './api/v1/database/connectDatabase';
 import mongoose from 'mongoose';
