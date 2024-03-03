@@ -68,7 +68,8 @@ export const redirectToLongUrl = async (req: Request, res: Response, next: NextF
 
 export const generateAnalytics = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { timeFrame } = req.body ? req.body : 'all';
+    // default timeFrame to 'all' if no input provided
+    const { shortUrlId, timeFrame = 'all' } = req.body;
 
     const startDate = calculateStartDate(timeFrame);
 
@@ -76,6 +77,7 @@ export const generateAnalytics = async (req: Request, res: Response, next: NextF
     const accessCount = await AccessLogModel.aggregate([
       {
         $match: {
+          shortUrlId,
           accessTime: { $gte: startDate }
         }
       },
