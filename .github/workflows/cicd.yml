@@ -24,7 +24,8 @@ jobs:
           cache: 'yarn'
 
       - run: yarn install
-      - run: yarn build --if-present
+      - run: tsc
+      - run: tax-alias
       - run: yarn test
 
   notify:
