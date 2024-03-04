@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { UrlModel } from '../models/urls.model';
-import { generateShortUrl } from '../services/generateShortUrl';
-import { v4 as uuid } from 'uuid';
+import { findOrCreateShortUrl } from '../services/urlServices';
 import { AccessLogModel } from '../models/accessLogs.model';
 import { calculateStartDate } from '../../utils/helpers';
 
@@ -18,27 +17,8 @@ export const createShortUrl = async (
 ) => {
   try {
     const { longUrl } = req.body;
-    let urlDocument = await UrlModel.findOne({ longUrl });
-    let shortUrlId;
-
-    if (!urlDocument) {
-      const longUrlId = uuid();
-      shortUrlId = generateShortUrl(longUrlId);
-
-      urlDocument = new UrlModel({
-        longUrlId,
-        longUrl,
-        shortUrls: [{ shortUrlId }],
-      });
-
-      await urlDocument.save();
-    } else {
-      shortUrlId = generateShortUrl();
-      urlDocument.shortUrls.push({ shortUrlId });
-      await urlDocument.save();
-    }
-
-    res.status(201).json({ shortUrl: `www.shorturl.com/${shortUrlId}` });
+    const shortUrl = await findOrCreateShortUrl(longUrl);
+    return res.status(201).json({ shortUrl });
   } catch (err) {
     next({
       status: 500,
@@ -50,9 +30,6 @@ export const createShortUrl = async (
 
 /**
  * Redirects a short url to its corresponding long url.
- * @param req - The request object containing the short url ID.
- * @param res - The response object.
- * @param next - The next middleware function in the stack.
  */
 export const redirectToLongUrl = async (
   req: Request,
@@ -85,9 +62,6 @@ export const redirectToLongUrl = async (
 
 /**
  * Generates analytics for a short url based on a specified time frame.
- * @param req - The request object containing the short url ID and the time frame.
- * @param res - The response object.
- * @param next - The next middleware function in the stack.
  */
 export const generateAnalytics = async (
   req: Request,
