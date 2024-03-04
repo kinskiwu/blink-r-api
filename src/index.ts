@@ -1,12 +1,14 @@
 import express, { Express, Request, Response } from 'express';
 import urlRouter from './api/v1/routes/urlRouter';
 import { globalErrorHandler } from './api/v1/middleware/globalErrorHandler';
+import helmet from 'helmet';
 
 const app: Express = express();
 
-// middlewares for request parsing
+// middlewares for request parsing & setting set HTTP headers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(helmet());
 
 // deployment confirmation msg
 app.get('/', (req, res) => {
