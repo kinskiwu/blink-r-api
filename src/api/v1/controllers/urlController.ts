@@ -67,7 +67,7 @@ export const redirectToLongUrl = async (
     });
 
     if (!urlDocument) {
-      return res.status(404).json({ error: 'Short URL not found' });
+      return res.status(400).json({ error: 'Short URL not found' });
     } else {
       const accessLogDocument = new AccessLogModel({ shortUrlId });
       await accessLogDocument.save();
@@ -97,6 +97,14 @@ export const generateAnalytics = async (
   try {
     const shortUrlId = req.query.shortUrlId as string;
     const timeFrame = req.query.timeFrame as string;
+
+    const urlDocument = await UrlModel.findOne({
+      'shortUrls.shortUrlId': shortUrlId,
+    });
+
+    if (!urlDocument) {
+      return res.status(400).json({ message: 'Short URL not found.' });
+    }
 
     const startDate = calculateStartDate(timeFrame);
 
