@@ -40,7 +40,7 @@ export const redirectToLongUrl = async (
     const { shortUrlId } = req.params;
 
     const urlDocument = await UrlModel.findOne({
-      'shortUrls.shortUrlId': shortUrlId,
+      'shortUrls.shortUrlId': { $eq: shortUrlId },
     });
 
     if (!urlDocument) {
@@ -73,7 +73,7 @@ export const generateAnalytics = async (
     const timeFrame = req.query.timeFrame as string;
 
     const urlDocument = await UrlModel.findOne({
-      'shortUrls.shortUrlId': shortUrlId,
+      'shortUrls.shortUrlId': { $eq: shortUrlId },
     });
 
     if (!urlDocument) {

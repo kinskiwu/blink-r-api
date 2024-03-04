@@ -6,10 +6,10 @@ The Short URL API is a robust and secure system designed for URL shortening, red
 
 ## Key Features
 
-- **URL Shortening**: Convert long URLs into short, user-friendly URLs.
-- **URL Redirection**: Redirect users from short URLs to their original long URLs with minimal latency.
-- **Analytics Tracking**: Provide detailed statistics on URL access frequency over specified timeframes.
-- **High Performance and Scalability:**: Designed to handle high traffic volumes and scale efficiently.
+- **URL Shortening**: Convert long URLs into short, unique URLs.
+- **URL Redirection**: Redirect users from short URLs to their original long URLs.
+- **Analytics Tracking**: Provide statistics on URL access frequency over 24 hours, 7 days, and all time.
+- **High Performance and Scalability:**: Designed to handle high traffic volumes and scale efficiently when the app grows.
 - **Enhanced Security**: Utilize Helmet for setting various HTTP headers to protect against common vulnerabilities and rate limiting to prevent DDoS attacks.
 - **CI/CD Pipeline**: Automated testing and deployment pipeline to ensure code quality and rapid iteration.
 

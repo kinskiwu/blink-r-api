@@ -19,7 +19,7 @@ export const generateShortUrl = (uniqueId: string = uuid()): string => {
  * @returns A promise that resolves to the full short URL path.
  */
 export const findOrCreateShortUrl = async (longUrl: string) => {
-  let urlDocument = await UrlModel.findOne({ longUrl });
+  let urlDocument = await UrlModel.findOne({ longUrl: { $eq: longUrl } });
   let shortUrlId;
 
   if (!urlDocument) {
