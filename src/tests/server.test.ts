@@ -4,7 +4,7 @@ import { setupDB, teardownDB, clearDB } from './jest_mongodb_setup';
 
 beforeAll(async () => await setupDB());
 
-// afterEach(async () => await clearDB());
+afterEach(async () => await clearDB());
 
 afterAll(async () => await teardownDB());
 
@@ -57,7 +57,7 @@ describe('URL Shortening API', () => {
       const timeFrame = '24h';
       const response = await request(app)
         .get('/api/v1/url/analytics')
-        .query({ shortUrlId : shortUrlIdNotExist, timeFrame });
+        .query({ shortUrlId: shortUrlIdNotExist, timeFrame });
 
       expect(response.status).toBe(400);
     });

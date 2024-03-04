@@ -135,12 +135,11 @@ const AccessLogSchema = new Schema({
 });
 ```
 
-## Stretch Features
+## Stretch Goals
 
 ### Maintainability
 
 - **Automated Testing:** Implement comprehensive unit and integration tests to ensure code changes do not break existing functionality.
-- **Continuous Integration/Continuous Deployment (CI/CD):** Set up CI/CD pipelines to automate testing and deployment processes, ensuring that only thoroughly tested code is deployed.
 
 ### Performance
 
@@ -149,11 +148,10 @@ const AccessLogSchema = new Schema({
 
 ### Security
 
-- **Rate Limiting:** Implement rate limiting to prevent abuse and mitigate DDoS attacks.
-- **HTTPS Enforcement:** Ensure all data is transmitted securely over HTTPS to protect against man-in-the-middle attacks.
-- **Data Sanitization:** Employ strict input validation and sanitization to protect against SQL injection, XSS, and other injection attacks.
+- **Data Sanitization:** Employ stricter input validation and sanitization such as using express-validator to protect against SQL injection, XSS, and other injection attacks.
 
 ## Availability
+
 - **Redundancy:** Deploy the application across multiple data centers to ensure availability in the event of a data center failure.
 
 ## Scalability
