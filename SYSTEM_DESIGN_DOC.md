@@ -46,10 +46,10 @@ This document outlines the design and architecture of the Short URL API, a syste
 - **Short URL Hash Function**:
   - **Option 1: Popular Hashing Algorithms (MD5, SHA-1, SHA-2)**
     - Advantages: Security, ready-to-use, unique output
-    - Disadvantages: Large output size, collision risk, development and server overhead
+    - Disadvantages: Large output size -> higher storage costs, collision risk if truncated, development and server overhead
   - **Option 2: Unique ID Generator + Base 62 Conversion**
-    - Advantages: Collision risk elimination, simple implementation, quick deployment
-    - Disadvantages: Increased server load when app scales, security concerns with conversion pattern
+    - Advantages: Small output size, Collision risk elimination, simple implementation, quick deployment
+    - Disadvantages: using a uuid library may increase server load when app scales, security concerns with conversion pattern
   - **Decision:** Unique ID Generator + Base 62 Conversion
 
 - **Database Selection**:
@@ -139,8 +139,7 @@ const AccessLogSchema = new Schema({
 
 ### Maintainability
 
-- **Automated Testing:** Implement comprehensive unit and integration tests to ensure code changes do not break existing functionality.
-- **Error Response Standardization:** Establish a standard error response format across the api including a consistent structure for sending error codes, messages, and field-specific validation errors.
+- **Comprehensive Testing:** Increase unit and integration tests to ensure code changes do not break existing functionality.
 
 ### Performance
 
@@ -149,7 +148,8 @@ const AccessLogSchema = new Schema({
 
 ### Security
 
-- **Data Sanitization:** Employ stricter input validation and sanitization such as using express-validator to protect against SQL injection, XSS, and other injection attacks.
+- **Data Sanitization:** Employ stricter input validation and sanitization middlewares to protect against SQL injection, XSS, and other injection attacks.
+- **Error Response Standardization:** Establish a standard error response format across the api including a consistent structure for sending error codes, messages, and field-specific validation errors.
 
 ### Availability
 
@@ -158,3 +158,4 @@ const AccessLogSchema = new Schema({
 ### Scalability
 
 - **Database Sharding:** Implement database sharding to distribute data across multiple databases, improving read/write performance as the dataset grows.
+- **Custom Middlewares:** Implement custom middlewares and functions to replace external libraries such as uuid, express rate limit etc when app scales to reduce overhead
