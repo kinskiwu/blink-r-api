@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { UrlModel } from '../models/urls.model';
-import { findOrCreateShortUrl } from '../services/urlServices';
+import {
+  findOrCreateShortUrl,
+  redirectShortUrlToLongUrl,
+} from '../services/urlServices';
 import { AccessLogModel } from '../models/accessLogs.model';
 import { calculateStartDate } from '../../utils/helpers';
 
@@ -18,7 +21,7 @@ export const createShortUrl = async (
   try {
     const { longUrl } = req.body;
     const shortUrl = await findOrCreateShortUrl(longUrl);
-    res.status(201).json({ shortUrl });
+    return res.status(201).json({ shortUrl });
   } catch (err) {
     next({
       status: 500,
@@ -30,9 +33,6 @@ export const createShortUrl = async (
 
 /**
  * Redirects a short url to its corresponding long url.
- * @param req - The request object containing the short url ID.
- * @param res - The response object.
- * @param next - The next middleware function in the stack.
  */
 export const redirectToLongUrl = async (
   req: Request,
@@ -40,20 +40,9 @@ export const redirectToLongUrl = async (
   next: NextFunction
 ) => {
   try {
-    const { shortUrlId } = req.params;
-
-    const urlDocument = await UrlModel.findOne({
-      'shortUrls.shortUrlId': shortUrlId,
-    });
-
-    if (!urlDocument) {
-      return res.status(400).json({ error: 'Short URL not found' });
-    } else {
-      const accessLogDocument = new AccessLogModel({ shortUrlId });
-      await accessLogDocument.save();
-
-      return res.redirect(301, urlDocument.longUrl);
-    }
+    const shortUrlId = req.params.shortUrlId as string;
+    const longUrl = await redirectShortUrlToLongUrl(shortUrlId);
+    return res.redirect(301, longUrl);
   } catch (err) {
     next({
       status: 500,
