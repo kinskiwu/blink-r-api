@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { UrlModel } from '../models/urls.model';
-import { generateShortUrl } from '../services/generateShortUrl';
-import { v4 as uuid } from 'uuid';
+import { findOrCreateShortUrl } from '../services/urlServices';
 import { AccessLogModel } from '../models/accessLogs.model';
 import { calculateStartDate } from '../../utils/helpers';
 
@@ -18,27 +17,8 @@ export const createShortUrl = async (
 ) => {
   try {
     const { longUrl } = req.body;
-    let urlDocument = await UrlModel.findOne({ longUrl });
-    let shortUrlId;
-
-    if (!urlDocument) {
-      const longUrlId = uuid();
-      shortUrlId = generateShortUrl(longUrlId);
-
-      urlDocument = new UrlModel({
-        longUrlId,
-        longUrl,
-        shortUrls: [{ shortUrlId }],
-      });
-
-      await urlDocument.save();
-    } else {
-      shortUrlId = generateShortUrl();
-      urlDocument.shortUrls.push({ shortUrlId });
-      await urlDocument.save();
-    }
-
-    res.status(201).json({ shortUrl: `www.shorturl.com/${shortUrlId}` });
+    const shortUrl = await findOrCreateShortUrl(longUrl);
+    res.status(201).json({ shortUrl });
   } catch (err) {
     next({
       status: 500,
