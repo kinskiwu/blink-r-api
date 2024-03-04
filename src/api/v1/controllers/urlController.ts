@@ -1,9 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { UrlModel } from '../models/urls.model';
-import {
-  findOrCreateShortUrl,
-  redirectShortUrlToLongUrl,
-} from '../services/urlServices';
+import { findOrCreateShortUrl } from '../services/urlServices';
 import { AccessLogModel } from '../models/accessLogs.model';
 import { calculateStartDate } from '../../utils/helpers';
 
@@ -40,9 +37,20 @@ export const redirectToLongUrl = async (
   next: NextFunction
 ) => {
   try {
-    const shortUrlId = req.params.shortUrlId as string;
-    const longUrl = await redirectShortUrlToLongUrl(shortUrlId);
-    return res.redirect(301, longUrl);
+    const { shortUrlId } = req.params;
+
+    const urlDocument = await UrlModel.findOne({
+      'shortUrls.shortUrlId': shortUrlId,
+    });
+
+    if (!urlDocument) {
+      return res.status(400).json({ error: 'Short URL not found' });
+    } else {
+      const accessLogDocument = new AccessLogModel({ shortUrlId });
+      await accessLogDocument.save();
+
+      return res.redirect(301, urlDocument.longUrl);
+    }
   } catch (err) {
     next({
       status: 500,
@@ -54,9 +62,6 @@ export const redirectToLongUrl = async (
 
 /**
  * Generates analytics for a short url based on a specified time frame.
- * @param req - The request object containing the short url ID and the time frame.
- * @param res - The response object.
- * @param next - The next middleware function in the stack.
  */
 export const generateAnalytics = async (
   req: Request,

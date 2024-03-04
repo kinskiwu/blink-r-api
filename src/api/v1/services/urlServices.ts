@@ -1,7 +1,6 @@
 import { v4 as uuid } from 'uuid';
 import { encodeToBase62 } from '../../utils/helpers';
 import { UrlModel } from '../models/urls.model';
-import { AccessLogModel } from '../models/accessLogs.model';
 
 /**
  * Generates a short URL identifier.
@@ -36,18 +35,4 @@ export const findOrCreateShortUrl = async (longUrl: string) => {
   }
 
   return `www.shorturl.com/${shortUrlId}`;
-};
-
-export const redirectShortUrlToLongUrl = async (shortUrlId: string) => {
-  const urlDocument = await UrlModel.findOne({
-    'shortUrls.shortUrlId': shortUrlId,
-  });
-
-  if (!urlDocument) {
-    throw new Error('Short URL not found');
-  }
-
-  await new AccessLogModel({ shortUrlId }).save();
-
-  return urlDocument.longUrl;
 };
