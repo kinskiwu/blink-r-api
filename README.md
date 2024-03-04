@@ -140,7 +140,6 @@ const AccessLogSchema = new Schema({
 ### Maintainability
 
 - **Automated Testing:** Implement comprehensive unit and integration tests to ensure code changes do not break existing functionality.
-- **Continuous Integration/Continuous Deployment (CI/CD):** Set up CI/CD pipelines to automate testing and deployment processes, ensuring that only thoroughly tested code is deployed.
 
 ### Performance
 
