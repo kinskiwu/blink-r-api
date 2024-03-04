@@ -30,6 +30,8 @@ export const encodeToBase62 = (uniqueId: string): string => {
  * @returns True if valid, false otherwise.
  */
 export const isValidShortUrl = (input: string): boolean => {
+  if (typeof input !== 'string') return false;
+
   const regex = new RegExp(`^[${allowedCharacters}]+$`);
   return regex.test(input);
 };
@@ -41,6 +43,8 @@ export const isValidShortUrl = (input: string): boolean => {
  */
 export const isValidHttpUrl = (input: string): boolean => {
   try {
+    if (typeof input !== 'string') return false;
+
     const url = new URL(input);
     return url.protocol === 'http:' || url.protocol === 'https:';
   } catch (err) {
