@@ -57,7 +57,7 @@ This document outlines the design and architecture of the Short URL API, a syste
     - Advantages: Security, scalability, mature ecosystem, complex queries
     - Disadvantages: Rigid schema, scaling challenges, data repetition
   - **Option 2: NoSQL Database**
-    - Advantages: Performance, scalability, flexible schema, efficient analytics with MongoDB's time-series
+    - Advantages: Performance, scalability, flexible schema, efficient analytics and optimized query and storage with MongoDB's time-series collection
     - Disadvantages: Less mature ecosystem, limited query capabilities
   - **Decision:** NoSQL Database (MongoDB)
 

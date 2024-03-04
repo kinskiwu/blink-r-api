@@ -1,17 +1,17 @@
-# Short URL API System
+# Short URL API
 
 ## Overview
 
-The Short URL API is a robust and secure system designed for URL shortening, redirection, and comprehensive analytics tracking. It transforms long URLs into manageable, short links, facilitates quick redirects, and provides detailed access analytics. This API is built on a scalable architecture that ensures very low latency, supports millions of URLs, and maintains data persistency. To enhance security and ensure the reliability of the service, the system incorporates middleware such as Helmet for security headers and rate limiting to prevent abuse. Additionally, it adopts a CI/CD pipeline for automated testing and deployment, ensuring continuous integration and delivery of new features and fixes.
+Our Short URL API makes your long links short and easy to share! It's perfect for simplifying long URLs into neat, manageable links that you can track with our easy-to-understand analytics.
 
-## Key Features
+## Features
 
-- **URL Shortening**: Convert long URLs into short, unique URLs.
-- **URL Redirection**: Redirect users from short URLs to their original long URLs.
-- **Analytics Tracking**: Provide statistics on URL access frequency over 24 hours, 7 days, and all time.
-- **High Performance and Scalability:**: Designed to handle high traffic volumes and scale efficiently when the app grows.
-- **Enhanced Security**: Utilize Helmet for setting various HTTP headers to protect against common vulnerabilities and rate limiting to prevent DDoS attacks.
-- **CI/CD Pipeline**: Automated testing and deployment pipeline to ensure code quality and rapid iteration.
+- **URL Shortening**: Convert lengthy URLs into short, memorable links in seconds.
+- **URL Redirection**: Redirect from short URLs to their original long URLs.
+- **Analytics Tracking**: Access statistics on short URL access, with data available for 24 hours, 7 days, and all time.
+- **High Performance and Scalability**: Designed to handle high traffic volumes and scale efficiently as the app grows.
+- **Secure & Reliable**: Utilized Helmet for setting various HTTP headers to protect against common vulnerabilities and rate limiting to prevent DDoS attacks.
+- **Continuous Improvements**: Leveraged a CI/CD pipeline for ongoing testing and deployment, ensuring the app evolves with regular updates and optimizations.
 
 ## Design Document
 
