@@ -1,46 +1,24 @@
 import { encodeToBase62, isValidHttpUrl, isValidShortUrl } from './helpers';
 
 describe('encodeToBase62', () => {
-  it('correctly encodes a given uniqueId to a base62 string', () => {
-    const uniqueId = '123';
-    const result = encodeToBase62(uniqueId);
-
-    expect(typeof result).toBe('string');
-    expect(result.length).toBeGreaterThan(0);
+  it('should correctly encode a given uniqueId to a base62 string', () => {
+    expect(encodeToBase62('123')).toMatch(/^[0-9A-Za-z]+$/);
+    expect(encodeToBase62('test')).toBe('7e'); // Assuming '7e' is the correct encoding for 'test'
+    expect(encodeToBase62('')).toBe('');
   });
 
-  it('returns a known base62 string for a specific uniqueId', () => {
-    const uniqueId = 'test';
-    const expectedResult = '7e'; //'7e' is the result for encoding 'test'
-    const result = encodeToBase62(uniqueId);
-
-    expect(result).toBe(expectedResult);
-  });
-
-  it('handles an empty string input', () => {
-    const uniqueId = '';
-    const result = encodeToBase62(uniqueId);
-
-    expect(result).toBe('');
-  });
-
-  it('returns different encoded strings for different uniqueIds', () => {
+  it('should return unique encoded strings for different inputs and ensure they are <= 7 characters', () => {
     const uniqueId1 = 'abc';
     const uniqueId2 = 'def';
-    const result1 = encodeToBase62(uniqueId1);
-    const result2 = encodeToBase62(uniqueId2);
+    const longUniqueId = '68f2f6ea-0676-47fc-b998-5e41dedcf2f7';
 
-    expect(result1).not.toBe(result2);
+    expect(encodeToBase62(uniqueId1)).not.toBe(encodeToBase62(uniqueId2));
+    expect(encodeToBase62(longUniqueId).length).toBeLessThanOrEqual(7);
   });
 
-  it('the encoded string should be less than or equal to 7 characters', () => {
-    const uniqueId1 = '68f2f6ea-0676-47fc-b998-5e41dedcf2f7';
-    const uniqueId2 = 'f8a42fc1-264f-4b90-9176-eba2cd92738c';
-    const result1 = encodeToBase62(uniqueId1);
-    const result2 = encodeToBase62(uniqueId2);
-
-    expect(result1.length).toBeLessThanOrEqual(7);
-    expect(result2.length).toBeLessThanOrEqual(7);
+  it('should handle numeric strings and special characters consistently', () => {
+    expect(encodeToBase62('1234567890')).toMatch(/^[0-9A-Za-z]+$/);
+    expect(encodeToBase62('test!@#')).toMatch(/^[0-9A-Za-z]{1,7}$/);
   });
 });
 
