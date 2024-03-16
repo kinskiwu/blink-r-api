@@ -10,7 +10,7 @@ jest.mock('../../utils/helpers', () => ({
   isValidShortUrl: jest.fn(),
 }));
 
-describe('validateLongUrlInput Middleware', () => {
+describe('URL Input Validation Middlewares', () => {
   let req: Partial<Request>;
   let res: Partial<Response>;
   let next: NextFunction;
@@ -19,119 +19,89 @@ describe('validateLongUrlInput Middleware', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-
-    mockStatus = jest.fn();
-    mockJson = jest.fn();
-    res = {
-      status: mockStatus.mockReturnThis(),
-      json: mockJson.mockReturnThis(),
-    };
+    mockStatus = jest.fn().mockReturnThis();
+    mockJson = jest.fn().mockReturnThis();
+    res = { status: mockStatus, json: mockJson };
     next = jest.fn();
   });
 
-  describe('valid inputs', () => {
-    it('should call next() for valid http and https URLs', () => {
-      (helpers.isValidHttpUrl as jest.Mock).mockReturnValue(true);
-      req = { body: { longUrl: 'https://validurl.com' } };
+  describe('validateLongUrlInput', () => {
+    describe('when input is valid', () => {
+      it('should proceed to the next middleware', () => {
+        const validUrl = 'https://validurl.com';
+        (helpers.isValidHttpUrl as jest.Mock).mockReturnValue(true);
+        req = { body: { longUrl: validUrl } };
 
-      validateLongUrlInput(req as Request, res as Response, next);
+        validateLongUrlInput(req as Request, res as Response, next);
 
-      expect(helpers.isValidHttpUrl).toHaveBeenCalledWith(
-        'https://validurl.com'
-      );
-      expect(next).toHaveBeenCalled();
-      expect(mockStatus).not.toHaveBeenCalled();
-      expect(mockJson).not.toHaveBeenCalled();
+        expect(helpers.isValidHttpUrl).toHaveBeenCalledWith(validUrl);
+        expect(next).toHaveBeenCalled();
+        expect(mockStatus).not.toHaveBeenCalled();
+        expect(mockJson).not.toHaveBeenCalled();
+      });
     });
-  });
 
-  describe('invalid inputs', () => {
-    it('should respond with 400 status for non-string inputs', () => {
-      const inputs = [123, null, undefined, {}, [], true];
-      inputs.forEach((input) => {
+    describe('when input is invalid', () => {
+      it.each([
+        [123, 'number'],
+        [null, 'null'],
+        [undefined, 'undefined'],
+        [{}, 'object'],
+        [[], 'array'],
+        [true, 'boolean'],
+        ['ftp://cloudflare.com', 'invalid protocol'],
+        ['httpss://cloudflare.com', 'typo in protocol'],
+        ['://cloudflare.com', 'missing protocol'],
+        ['http:/cloudflare.com', 'missing slash'],
+        ['https:/cloudflare.com', 'missing slash'],
+        ['http://', 'missing domain'],
+        ['', 'empty string'],
+      ])('should respond with 400 for %s', async (input, description) => {
         (helpers.isValidHttpUrl as jest.Mock).mockReturnValue(false);
         req = { body: { longUrl: input } };
 
-        validateLongUrlInput(req as Request, res as Response, next);
+        await validateLongUrlInput(req as Request, res as Response, next);
 
         expect(mockStatus).toHaveBeenCalledWith(400);
         expect(mockJson).toHaveBeenCalledWith({ error: 'Invalid long URL' });
       });
     });
+  });
 
-    it.each([
-      'ftp://cloudflare.com',
-      'httpss://cloudflare.com',
-      '://cloudflare.com',
-      'http:/cloudflare.com',
-      'https:/cloudflare.com',
-      'http://',
-      '',
-    ])('should respond with 400 status for invalid URL: %s', (url) => {
-      (helpers.isValidHttpUrl as jest.Mock).mockReturnValue(false);
-      req = { body: { longUrl: url } };
+  describe('validateShortUrlInput', () => {
+    describe('when input is valid', () => {
+      it.each(['abc123', '1234567'])(
+        'should proceed to the next middleware for %s',
+        async (validShortUrlId) => {
+          (helpers.isValidShortUrl as jest.Mock).mockReturnValue(true);
+          req = { params: { shortUrlId: validShortUrlId } };
 
-      validateLongUrlInput(req as Request, res as Response, next);
+          await validateShortUrlInput(req as Request, res as Response, next);
 
-      expect(mockStatus).toHaveBeenCalledWith(400);
-      expect(mockJson).toHaveBeenCalledWith({ error: 'Invalid long URL' });
+          expect(helpers.isValidShortUrl).toHaveBeenCalledWith(validShortUrlId);
+          expect(next).toHaveBeenCalled();
+          expect(mockStatus).not.toHaveBeenCalled();
+          expect(mockJson).not.toHaveBeenCalled();
+        }
+      );
     });
-  });
-});
 
-describe('validateShortUrlInput Middleware', () => {
-  let req: Partial<Request>;
-  let res: Partial<Response>;
-  let next: jest.Mock<NextFunction>;
-  let mockStatus: jest.Mock;
-  let mockJson: jest.Mock;
+    describe('when input is invalid', () => {
+      it.each([
+        ['', 'empty string'],
+        ['invalid$', 'contains special character'],
+        ['12345678', 'exceeds length'],
+        [null, 'null'],
+        [undefined, 'undefined'],
+      ])('should respond with 400 for %s', async (shortUrlId, description) => {
+        (helpers.isValidShortUrl as jest.Mock).mockReturnValue(false);
+        req = { params: { shortUrlId: shortUrlId as any } };
 
-  beforeEach(() => {
-    jest.clearAllMocks();
+        await validateShortUrlInput(req as Request, res as Response, next);
 
-    mockStatus = jest.fn();
-    mockJson = jest.fn();
-    res = {
-      status: mockStatus.mockReturnThis(),
-      json: mockJson.mockReturnThis(),
-    };
-    next = jest.fn();
-  });
-
-  it('should call next() for valid shortUrlId', () => {
-    const validShortUrlIds = ['abc123', '1234567'];
-    validShortUrlIds.forEach((validShortUrlId) => {
-      (helpers.isValidShortUrl as jest.Mock).mockReturnValue(true);
-      req = { params: { shortUrlId: validShortUrlId } };
-
-      validateShortUrlInput(req as Request, res as Response, next);
-
-      expect(helpers.isValidShortUrl).toHaveBeenCalledWith(validShortUrlId);
-      expect(next).toHaveBeenCalled();
-      expect(mockStatus).not.toHaveBeenCalled();
-      expect(mockJson).not.toHaveBeenCalled();
+        expect(mockStatus).toHaveBeenCalledWith(400);
+        expect(mockJson).toHaveBeenCalledWith({ error: 'Invalid short URL' });
+      });
     });
-  });
-
-  it.each(['', 'invalid$', '12345678', null, undefined])(
-    'should respond with 400 status for invalid shortUrlId: %s',
-    (shortUrlId) => {
-      (helpers.isValidShortUrl as jest.Mock).mockReturnValue(false);
-      req = { params: { shortUrlId: shortUrlId as any } }; // Using type casting to bypass TypeScript checks
-
-      validateShortUrlInput(req as Request, res as Response, next);
-
-      expect(mockStatus).toHaveBeenCalledWith(400);
-      expect(mockJson).toHaveBeenCalledWith({ error: 'Invalid short URL' });
-    }
-  );
-
-  it('should handle cases where shortUrlId is not provided', () => {
-    req = { params: {} };
-
-    validateShortUrlInput(req as Request, res as Response, next);
-
-    expect(mockStatus).toHaveBeenCalledWith(400);
-    expect(mockJson).toHaveBeenCalledWith({ error: 'Invalid short URL' });
   });
 });
