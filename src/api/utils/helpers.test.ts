@@ -75,20 +75,20 @@ describe('isValidHttpUrl', () => {
       });
     });
 
-    it('should return false for strings that are not valid http or https URLs', () => {
-      const invalidUrls = [
-        'ftp://cloudflare.com',
-        'httpss://cloudflare.com',
-        '://cloudflare.com',
-        'http:/cloudflare.com',
-        'https:/cloudflare.com',
-        'http://',
-        '',
-      ];
-      invalidUrls.forEach((url) => {
+    it.each([
+      'ftp://cloudflare.com',
+      'httpss://cloudflare.com',
+      '://cloudflare.com',
+      'http:/cloudflare.com',
+      'https:/cloudflare.com',
+      'http://',
+      '',
+    ])(
+      'should return false for strings that are not valid http or https URLs: %s',
+      (url) => {
         expect(isValidHttpUrl(url)).toBe(false);
-      });
-    });
+      }
+    );
 
     it('should return false for valid URLs with protocols other than http or https', () => {
       const validFtpUrl = 'ftp://cloudflare.com';
