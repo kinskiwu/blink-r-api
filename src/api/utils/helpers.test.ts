@@ -45,15 +45,42 @@ describe('encodeToBase62', () => {
 });
 
 describe('isValidShortUrl', () => {
-  test('returns true for valid shortUrl', () => {
-    expect(isValidShortUrl('mockexample')).toBe(true);
-    expect(isValidShortUrl('123')).toBe(true);
+  describe('when given valid shortUrls', () => {
+    it.each(['cloud', '123', 'abc123'])(
+      'should return true for "%s"',
+      (shortUrl) => {
+        expect(isValidShortUrl(shortUrl)).toBe(true);
+      }
+    );
   });
 
-  test('returns false for invalid shortUrl', () => {
-    expect(isValidShortUrl('')).toBe(false);
-    expect(isValidShortUrl('mock$example')).toBe(false);
-    expect(isValidShortUrl('1 23')).toBe(false);
+  describe('when given invalid shortUrls', () => {
+    it.each(['', 'mock$example', '1 23', '!@#', 'mock|example'])(
+      'should return false for "%s"',
+      (shortUrl) => {
+        expect(isValidShortUrl(shortUrl)).toBe(false);
+      }
+    );
+  });
+
+  describe('when given non-string inputs', () => {
+    it.each([
+      [123, 'number'],
+      [{}, 'object'],
+      [[], 'array'],
+      [undefined, 'undefined'],
+      [null, 'null'],
+    ])('should return false for a %s input', (input, description) => {
+      expect(isValidShortUrl(input)).toBe(false);
+    });
+  });
+  describe('when input exceeds max length of 7 characters', () => {
+    it.each(['12345678', 'abcdefghijklmn'])(
+      'should return false for "%s"',
+      (shortUrl) => {
+        expect(isValidShortUrl(shortUrl)).toBe(false);
+      }
+    );
   });
 });
 
