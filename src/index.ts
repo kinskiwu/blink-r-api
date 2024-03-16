@@ -1,12 +1,20 @@
 import express, { Express, Request, Response } from 'express';
 import urlRouter from './api/v1/routes/urlRouter';
 import { globalErrorHandler } from './api/v1/middleware/globalErrorHandler';
+import helmet from 'helmet';
+import { rateLimitMiddleware } from './api/v1/middleware/rateLimitHandler';
 
 const app: Express = express();
 
 // middlewares for request parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// middleware for setting set HTTP headers
+app.use(helmet());
+
+// middleware for setting rate limit
+app.use(rateLimitMiddleware);
 
 // deployment confirmation msg
 app.get('/', (req, res) => {
