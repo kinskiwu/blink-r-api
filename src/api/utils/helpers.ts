@@ -1,4 +1,3 @@
-// converts a unique ID string to a base62 encoded string
 const allowedCharacters =
   '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const base = allowedCharacters.length;
@@ -30,7 +29,7 @@ export const encodeToBase62 = (uniqueId: string): string => {
  * @returns True if valid, false otherwise.
  */
 export const isValidShortUrl = (input): boolean => {
-  if (typeof input !== 'string') return false;
+  if (typeof input !== 'string' || input.length > 7) return false;
 
   const regex = new RegExp(`^[${allowedCharacters}]+$`);
   return regex.test(input);
