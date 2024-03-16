@@ -1,5 +1,5 @@
 import { encodeToBase62, isValidHttpUrl, isValidShortUrl } from './helpers';
-
+//todo: add collision test for encodetoBase62
 describe('encodeToBase62', () => {
   it('should correctly encode a given uniqueId to a base62 string', () => {
     expect(encodeToBase62('123')).toMatch(/^[0-9A-Za-z]+$/);
