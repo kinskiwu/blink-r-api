@@ -18,6 +18,14 @@ export const createShortUrl = async (
   try {
     const { longUrl } = req.body;
     const shortUrl = await findOrCreateShortUrl(longUrl);
+
+    if (!shortUrl) {
+      return next({
+        status: 500,
+        message: 'Failed to create short URL.',
+      });
+    }
+
     return res.status(201).json({ shortUrl });
   } catch (err) {
     next({
