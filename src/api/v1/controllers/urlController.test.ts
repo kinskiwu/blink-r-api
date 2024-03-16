@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { findOrCreateShortUrl } from '../services/urlServices';
 import { createShortUrl } from './urlController';
-import { validateLongUrlInput } from '../middleware/validateUserInputHandlers';
 
 jest.mock('../services/urlServices', () => ({
   findOrCreateShortUrl: jest.fn(),
@@ -62,6 +61,6 @@ describe('createShortUrl Controller', () => {
     await createShortUrl(req as Request, res as Response, next);
 
     expect(findOrCreateShortUrl).toHaveBeenCalledWith(mockLongUrl);
-    expect(next).toHaveBeenCalledWith(expect.anything()); // Adjust based on how you decide to handle this case in the controller
+    expect(next).toHaveBeenCalledWith(expect.anything());
   });
 });
