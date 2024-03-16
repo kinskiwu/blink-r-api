@@ -58,15 +58,41 @@ describe('isValidShortUrl', () => {
 });
 
 describe('isValidHttpUrl', () => {
-  test('returns true for valid http url', () => {
-    expect(isValidHttpUrl('https://www.example.com/')).toBe(true);
-    expect(isValidHttpUrl('http://www.example.com/')).toBe(true);
-    expect(isValidHttpUrl('https://www.google.com/')).toBe(true);
+  describe('valid inputs', () => {
+    it('should return true for valid http and https URLs', () => {
+      const validHttpUrl = 'http://cloudflare.com';
+      const validHttpsUrl = 'https://cloudflare.com';
+      expect(isValidHttpUrl(validHttpUrl)).toBe(true);
+      expect(isValidHttpUrl(validHttpsUrl)).toBe(true);
+    });
   });
 
-  test('return false for invalid http url', () => {
-    expect(isValidHttpUrl('www.example.com/')).toBe(false);
-    expect(isValidHttpUrl('mailto://www.example.com/')).toBe(false);
-    expect(isValidHttpUrl('google')).toBe(false);
+  describe('invalid inputs', () => {
+    it('should return false for non-string inputs', () => {
+      const inputs = [123, null, undefined, {}, [], true];
+      inputs.forEach((input) => {
+        expect(isValidHttpUrl(input)).toBe(false);
+      });
+    });
+
+    it('should return false for strings that are not valid http or https URLs', () => {
+      const invalidUrls = [
+        'ftp://cloudflare.com',
+        'httpss://cloudflare.com',
+        '://cloudflare.com',
+        'http:/cloudflare.com',
+        'https:/cloudflare.com',
+        'http://',
+        '',
+      ];
+      invalidUrls.forEach((url) => {
+        expect(isValidHttpUrl(url)).toBe(false);
+      });
+    });
+
+    it('should return false for valid URLs with protocols other than http or https', () => {
+      const validFtpUrl = 'ftp://cloudflare.com';
+      expect(isValidHttpUrl(validFtpUrl)).toBe(false);
+    });
   });
 });
