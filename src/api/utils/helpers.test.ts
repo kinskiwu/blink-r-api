@@ -85,22 +85,22 @@ describe('isValidShortUrl', () => {
 });
 
 describe('isValidHttpUrl', () => {
-  describe('valid inputs', () => {
-    it('should return true for valid http and https URLs', () => {
-      const validHttpUrl = 'http://cloudflare.com';
-      const validHttpsUrl = 'https://cloudflare.com';
-      expect(isValidHttpUrl(validHttpUrl)).toBe(true);
-      expect(isValidHttpUrl(validHttpsUrl)).toBe(true);
-    });
+  describe('when given valid inputs', () => {
+    it.each(['http://cloudflare.com', 'https://cloudflare.com'])(
+      'should return true for a valid URL: %s',
+      (url) => {
+        expect(isValidHttpUrl(url)).toBe(true);
+      }
+    );
   });
 
-  describe('invalid inputs', () => {
-    it('should return false for non-string inputs', () => {
-      const inputs = [123, null, undefined, {}, [], true];
-      inputs.forEach((input) => {
+  describe('when given invalid inputs', () => {
+    it.each([123, null, undefined, {}, [], true])(
+      'should return false for non-string inputs: %s',
+      (input) => {
         expect(isValidHttpUrl(input)).toBe(false);
-      });
-    });
+      }
+    );
 
     it.each([
       'ftp://cloudflare.com',
@@ -117,9 +117,8 @@ describe('isValidHttpUrl', () => {
       }
     );
 
-    it('should return false for valid URLs with protocols other than http or https', () => {
-      const validFtpUrl = 'ftp://cloudflare.com';
-      expect(isValidHttpUrl(validFtpUrl)).toBe(false);
+    it('should return false for URLs with unsupported protocols', () => {
+      expect(isValidHttpUrl('ftp://cloudflare.com')).toBe(false);
     });
   });
 });
