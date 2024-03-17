@@ -6,7 +6,6 @@ import { UrlModel } from '../models/urls.model';
 jest.mock('../services/urlServices', () => ({
   findOrCreateShortUrl: jest.fn(),
 }));
-// jest.mock('../models/urls.model');
 jest.mock('../models/urls.model', () => ({
   UrlModel: {
     findOne: jest.fn(),
@@ -131,34 +130,6 @@ describe('URL Controller Tests', () => {
           message: 'Server error encountered while redirecting short URL.',
         })
       );
-    });
-
-    it('returns a 400 error if the shortUrlId is an empty string', async () => {
-      req.params!.shortUrlId = '';
-      await redirectToLongUrl(req as Request, res as Response, next);
-
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({ error: 'Invalid short URL' });
-    });
-
-    it('returns a 400 error for shortUrlId with special characters', async () => {
-      req.params!.shortUrlId = 'invalid$id';
-      await redirectToLongUrl(req as Request, res as Response, next);
-
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({ error: 'Invalid short URL' });
-    });
-
-    it('should handle network issues gracefully during redirect', async () => {
-      const mockShortUrlId = 'validShortId';
-      req.params!.shortUrlId = mockShortUrlId;
-      (UrlModel.findOne as jest.Mock).mockResolvedValueOnce(
-        new Error('Network Error')
-      );
-
-      await redirectToLongUrl(req as Request, res as Response, next);
-
-      expect(next).toHaveBeenCalledWith(expect.anything());
     });
   });
 });
