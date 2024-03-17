@@ -14,21 +14,22 @@ export const createShortUrl = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): Promise<void> => {
   try {
     const { longUrl } = req.body;
     const shortUrlId = await findOrCreateShortUrl(longUrl);
 
     if (!shortUrlId) {
-      return next({
+      next({
         status: 500,
         message: 'Failed to create short URL.',
       });
+      return;
     }
 
-    return res.status(201).json({ shortUrl: `www.shorturl.com/${shortUrlId}` });
+    res.status(201).json({ shortUrl: `www.shorturl.com/${shortUrlId}` });
   } catch (err) {
-    next({
+    return next({
       status: 500,
       message: 'Server error encountered while creating short URL.',
       err,
@@ -50,13 +51,13 @@ export const redirectToLongUrl = async (
     const accessLogDocument = new AccessLogModel({ shortUrlId });
     await accessLogDocument.save();
 
-    return res.redirect(301, urlDocument.longUrl);
+    res.redirect(301, urlDocument.longUrl);
   } catch (error) {
     if (error instanceof NotFoundError) {
       return res.status(400).json({ error: error.message });
     }
 
-    next({
+    return next({
       status: 500,
       message: 'Server error encountered while redirecting short URL.',
       err: error,
@@ -99,7 +100,7 @@ export const generateAnalytics = async (
       return res.status(400).json({ error: error.message });
     }
 
-    next({
+    return next({
       status: 500,
       message: 'Server error encountered while generating analytics.',
       err: error,
