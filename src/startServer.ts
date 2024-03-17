@@ -2,6 +2,7 @@ import app from './';
 import 'dotenv/config';
 import { connectDatabase } from './api/v1/database/connectDatabase';
 import mongoose from 'mongoose';
+import { connectRedis } from './api/v1/database/connectRedis';
 
 const PORT = process.env.PORT || 4000;
 /**
@@ -9,6 +10,7 @@ const PORT = process.env.PORT || 4000;
  */
 const startServer = async () => {
   await connectDatabase();
+  const redisClient = await connectRedis();
 
   const server = app.listen(PORT, () =>
     console.log(`Listening on port ${PORT}`)
@@ -20,6 +22,9 @@ const startServer = async () => {
 
     await mongoose.disconnect();
     console.log('MongoDB connection closed.');
+
+    await redisClient.quit();
+    console.log('Redis connection closed.');
 
     server.close(() => {
       console.log('Server shut down successfully.');
