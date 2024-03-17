@@ -55,15 +55,17 @@ describe('URL Controller Tests', () => {
 
     it('should successfully create a short URL for a valid long URL', async () => {
       const mockLongUrl = 'http://cloudflare.com';
-      const mockShortUrl = 'http://shorturl/cloudflare';
-      (findOrCreateShortUrl as jest.Mock).mockResolvedValue(mockShortUrl);
+      const mockShortUrlId = 'cloudflare';
+      (findOrCreateShortUrl as jest.Mock).mockResolvedValue(mockShortUrlId);
       req.body.longUrl = mockLongUrl;
 
       await createShortUrl(req as Request, res as Response, next);
 
       expect(findOrCreateShortUrl).toHaveBeenCalledWith(mockLongUrl);
       expect(res.status).toHaveBeenCalledWith(201);
-      expect(res.json).toHaveBeenCalledWith({ shortUrl: mockShortUrl });
+      expect(res.json).toHaveBeenCalledWith({
+        shortUrl: `www.shorturl.com/${mockShortUrlId}`,
+      });
     });
 
     it('should handle server error when URL creation fails', async () => {
