@@ -26,6 +26,18 @@ jest.mock('../../utils/helpers', () => ({
 }));
 
 describe('URL Controller Tests', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
+
   describe('createShortUrl Controller', () => {
     let req: Partial<Request>;
     let res: Partial<Response>;
@@ -89,7 +101,7 @@ describe('URL Controller Tests', () => {
     let next: jest.Mock<NextFunction>;
 
     beforeEach(() => {
-      jest.clearAllMocks()
+      jest.clearAllMocks();
       req = { params: { shortUrlId: '' } };
       res = {
         status: jest.fn().mockReturnThis(),

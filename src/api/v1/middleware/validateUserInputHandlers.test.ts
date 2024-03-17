@@ -25,6 +25,14 @@ describe('URL Input Validation Middlewares', () => {
     next = jest.fn();
   });
 
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
+
   describe('validateLongUrlInput', () => {
     describe('when input is valid', () => {
       it('should proceed to the next middleware', () => {

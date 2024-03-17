@@ -13,6 +13,14 @@ describe('globalErrorHandler', () => {
     };
   });
 
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
+
   it('should handle a default error', () => {
     const err = new Error('An error occurred');
     globalErrorHandler(
