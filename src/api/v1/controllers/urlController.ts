@@ -1,9 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
-import { findOrCreateShortUrl, findShortUrl, getAccessCountForShortUrl } from '../services/urlServices';
+import {
+  findOrCreateShortUrl,
+  findShortUrl,
+  getAccessCountForShortUrl,
+} from '../services/urlServices';
 import { AccessLogModel } from '../models/accessLogs.model';
-import { calculateStartDate } from '../../utils/helpers';
 import { NotFoundError } from '../../utils/errors';
-
+import { RedisClientType } from 'redis';
 /**
  * Creates a short url for a given long url and stores it in the database.
  * @param req - The request object containing the long url.
@@ -53,6 +56,7 @@ export const redirectToLongUrl = async (
     await accessLogDocument.save();
 
     const cachedUrl = await redisClient.get(`shortUrl:${shortUrlId}`);
+
     if (cachedUrl) {
       console.log('Cache hit');
       return res.redirect(301, cachedUrl);
@@ -89,10 +93,26 @@ export const generateAnalytics = async (
   try {
     const shortUrlId = req.query.shortUrlId as string;
     const timeFrame = req.query.timeFrame as string;
+    const redisClient: RedisClientType = req.app.locals.redisClient;
 
+    const cacheKey = `analytics:${shortUrlId}:${timeFrame}`;
+    const cachedData = await redisClient.get(cacheKey);
+
+    if (cachedData) {
+      console.log('Cache hit');
+      return res.status(200).json(JSON.parse(cachedData));
+    }
+
+    console.log('Cache miss');
     await findShortUrl(shortUrlId);
 
     const count = await getAccessCountForShortUrl(shortUrlId, timeFrame);
+
+    await redisClient.set(
+      cacheKey,
+      JSON.stringify({ timeFrame, accessCount: count }),
+      { EX: 3600 }
+    );
 
     res.status(200).json({ timeFrame, accessCount: count });
   } catch (error) {
