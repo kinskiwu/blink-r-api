@@ -17,16 +17,16 @@ export const createShortUrl = async (
 ) => {
   try {
     const { longUrl } = req.body;
-    const shortUrl = await findOrCreateShortUrl(longUrl);
+    const shortUrlId = await findOrCreateShortUrl(longUrl);
 
-    if (!shortUrl) {
+    if (!shortUrlId) {
       return next({
         status: 500,
         message: 'Failed to create short URL.',
       });
     }
 
-    return res.status(201).json({ shortUrl });
+    return res.status(201).json({ shortUrl: `www.shorturl.com/${shortUrlId}` });
   } catch (err) {
     next({
       status: 500,

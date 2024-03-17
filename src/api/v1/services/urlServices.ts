@@ -39,5 +39,5 @@ export const findOrCreateShortUrl = async (longUrl: string) => {
     await urlDocument.save();
   }
 
-  return `www.shorturl.com/${shortUrlId}`;
+  return shortUrlId;
 };
