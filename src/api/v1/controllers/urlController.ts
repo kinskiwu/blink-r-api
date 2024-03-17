@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express';
-import { UrlModel } from '../models/urls.model';
 import { findOrCreateShortUrl, findShortUrl } from '../services/urlServices';
 import { AccessLogModel } from '../models/accessLogs.model';
 import { calculateStartDate } from '../../utils/helpers';

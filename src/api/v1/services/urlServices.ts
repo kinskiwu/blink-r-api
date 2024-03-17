@@ -57,10 +57,10 @@ export const findShortUrl = async (shortUrlId) => {
   return urlDocument;
 };
 
-export async function getAccessCountForShortUrl(
+export const getAccessCountForShortUrl = async (
   shortUrlId: string,
   timeFrame: string
-): Promise<number> {
+): Promise<number> => {
   const startDate = calculateStartDate(timeFrame);
 
   const accessCount = await AccessLogModel.aggregate([
@@ -76,4 +76,4 @@ export async function getAccessCountForShortUrl(
   ]);
 
   return accessCount.length > 0 ? accessCount[0].accessCount : 0;
-}
+};
