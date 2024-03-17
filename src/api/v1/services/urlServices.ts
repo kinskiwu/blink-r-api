@@ -1,9 +1,9 @@
 import { v4 as uuid } from 'uuid';
 import { calculateStartDate, encodeToBase62 } from '../../utils/helpers';
 import { UrlModel } from '../models/urls.model';
-
 import { NotFoundError } from '../../utils/errors';
 import { AccessLogModel } from '../models/accessLogs.model';
+import { Url } from '../types/DbModelTypes';
 
 /**
  * Generates a short URL identifier.
@@ -18,10 +18,12 @@ export const generateShortUrl = (uniqueId: string = uuid()): string => {
 /**
  * Retrieves an existing short URL or creates a new one for a given long URL.
  *
- * @param longUrl The original long URL to shorten.
- * @returns A promise that resolves to the full short URL path.
+ * @param {string} longUrl The original long URL to shorten.
+ * @returns {Promise<string>} A promise that resolves to the full short URL path.
  */
-export const findOrCreateShortUrl = async (longUrl: string) => {
+export const findOrCreateShortUrl = async (
+  longUrl: string
+): Promise<string> => {
   let urlDocument = await UrlModel.findOne({ longUrl: { $eq: longUrl } });
   let shortUrlId;
 
@@ -45,7 +47,15 @@ export const findOrCreateShortUrl = async (longUrl: string) => {
   return shortUrlId;
 };
 
-export const findShortUrl = async (shortUrlId) => {
+/**
+ * Searches for a URL document based on a provided short URL ID.
+ *
+ * @param {string} shortUrlId - The unique identifier for the short URL.
+ * @returns {Promise<Url>} A promise that resolves to the found URL document.
+ * @throws {NotFoundError} Throws this error if no document is found for the given short URL ID.
+ */
+
+export const findShortUrl = async (shortUrlId): Promise<Url> => {
   const urlDocument = await UrlModel.findOne({
     'shortUrls.shortUrlId': { $eq: shortUrlId },
   });
@@ -57,6 +67,13 @@ export const findShortUrl = async (shortUrlId) => {
   return urlDocument;
 };
 
+/**
+ * Retrieves the access count for a given short URL within a specified timeframe.
+ *
+ * @param {string} shortUrlId The unique identifier of the short URL.
+ * @param {string}timeFrame The timeframe for which access count is being requested (e.g., "24h", "7d").
+ * @returns {Promise<number>}  A promise that resolves to the number of times the short URL was accessed within the specified timeframe.
+ */
 export const getAccessCountForShortUrl = async (
   shortUrlId: string,
   timeFrame: string
