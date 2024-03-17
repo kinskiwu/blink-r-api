@@ -41,7 +41,11 @@ export const createShortUrl = async (
 };
 
 /**
- * Redirects a short url to its corresponding long url.
+ * Redirects a short URL to its corresponding long URL.
+ * Utilizes caching to improve performance by storing frequently accessed URLs.
+ * @param req - The request object, containing the shortUrlId parameter.
+ * @param res - The response object used to redirect to the long URL or send back an error.
+ * @param next - The next middleware function in the stack for error handling.
  */
 export const redirectToLongUrl = async (
   req: Request,
@@ -88,10 +92,9 @@ export const redirectToLongUrl = async (
  * If the data is not available in the cache (cache miss), it proceeds to calculate the analytics data.
  * Once the data is calculated, it is stored in the cache for future requests before sending the response to the client.
  *
- * @param req - Express Request object. It includes the query parameters 'shortUrlId' and 'timeFrame'
- *              which denote the short URL ID and the analytics time frame respectively.
- * @param res - Express Response object. Used to send the response back to the client.
- * @param next - Next function to pass control to the next middleware in case of errors.
+ * @param req - The request object, containing query parameters 'shortUrlId' and 'timeFrame'.
+ * @param res - The response object, used for sending analytics data back to the client.
+ * @param next - The next middleware function, invoked for error handling.
  */
 export const generateAnalytics = async (
   req: Request,
