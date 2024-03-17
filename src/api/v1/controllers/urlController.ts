@@ -88,10 +88,7 @@ export const redirectToLongUrl = async (
 
 /**
  * Generates and returns analytics data for a given short URL based on the requested time frame.
- * This function first attempts to retrieve the analytics data from Redis cache to improve performance.
- * If the data is not available in the cache (cache miss), it proceeds to calculate the analytics data.
- * Once the data is calculated, it is stored in the cache for future requests before sending the response to the client.
- *
+ * Utilizes caching to improve performance by storing frequently accessed access counts.
  * @param req - The request object, containing query parameters 'shortUrlId' and 'timeFrame'.
  * @param res - The response object, used for sending analytics data back to the client.
  * @param next - The next middleware function, invoked for error handling.
