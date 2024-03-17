@@ -1,7 +1,9 @@
 import { v4 as uuid } from 'uuid';
-import { encodeToBase62 } from '../../utils/helpers';
+import { calculateStartDate, encodeToBase62 } from '../../utils/helpers';
 import { UrlModel } from '../models/urls.model';
+
 import { NotFoundError } from '../../utils/errors';
+import { AccessLogModel } from '../models/accessLogs.model';
 
 /**
  * Generates a short URL identifier.
@@ -54,3 +56,24 @@ export const findShortUrl = async (shortUrlId) => {
 
   return urlDocument;
 };
+
+export async function getAccessCountForShortUrl(
+  shortUrlId: string,
+  timeFrame: string
+): Promise<number> {
+  const startDate = calculateStartDate(timeFrame);
+
+  const accessCount = await AccessLogModel.aggregate([
+    {
+      $match: {
+        shortUrlId,
+        accessTime: { $gte: startDate },
+      },
+    },
+    {
+      $count: 'accessCount',
+    },
+  ]);
+
+  return accessCount.length > 0 ? accessCount[0].accessCount : 0;
+}
