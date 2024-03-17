@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { UrlModel } from '../models/urls.model';
-import { findOrCreateShortUrl } from '../services/urlServices';
+import { findOrCreateShortUrl, findShortUrl } from '../services/urlServices';
 import { AccessLogModel } from '../models/accessLogs.model';
 import { calculateStartDate } from '../../utils/helpers';
+import { NotFoundError } from '../../utils/errors';
 
 /**
  * Creates a short url for a given long url and stores it in the database.
@@ -46,24 +47,20 @@ export const redirectToLongUrl = async (
 ) => {
   try {
     const { shortUrlId } = req.params;
+    const urlDocument = await findShortUrl(shortUrlId);
+    const accessLogDocument = new AccessLogModel({ shortUrlId });
+    await accessLogDocument.save();
 
-    const urlDocument = await UrlModel.findOne({
-      'shortUrls.shortUrlId': { $eq: shortUrlId },
-    });
-
-    if (!urlDocument) {
-      return res.status(400).json({ error: 'Short URL not found' });
-    } else {
-      const accessLogDocument = new AccessLogModel({ shortUrlId });
-      await accessLogDocument.save();
-
-      return res.redirect(301, urlDocument.longUrl);
+    return res.redirect(301, urlDocument.longUrl);
+  } catch (error) {
+    if (error instanceof NotFoundError) {
+      return res.status(400).json({ error: error.message });
     }
-  } catch (err) {
+
     next({
       status: 500,
       message: 'Server error encountered while redirecting short URL.',
-      err,
+      err: error,
     });
   }
 };
@@ -80,13 +77,7 @@ export const generateAnalytics = async (
     const shortUrlId = req.query.shortUrlId as string;
     const timeFrame = req.query.timeFrame as string;
 
-    const urlDocument = await UrlModel.findOne({
-      'shortUrls.shortUrlId': { $eq: shortUrlId },
-    });
-
-    if (!urlDocument) {
-      return res.status(400).json({ message: 'Short URL not found.' });
-    }
+    await findShortUrl(shortUrlId);
 
     const startDate = calculateStartDate(timeFrame);
 
@@ -104,11 +95,15 @@ export const generateAnalytics = async (
 
     const count = accessCount.length > 0 ? accessCount[0].accessCount : 0;
     res.status(200).json({ timeFrame, accessCount: count });
-  } catch (err) {
+  } catch (error) {
+    if (error instanceof NotFoundError) {
+      return res.status(400).json({ error: error.message });
+    }
+
     next({
       status: 500,
       message: 'Server error encountered while generating analytics.',
-      err,
+      err: error,
     });
   }
 };
