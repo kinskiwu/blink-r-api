@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { findOrCreateShortUrl, findShortUrl } from '../services/urlServices';
+import { findOrCreateShortUrl, findShortUrl, getAccessCountForShortUrl } from '../services/urlServices';
 import { AccessLogModel } from '../models/accessLogs.model';
 import { calculateStartDate } from '../../utils/helpers';
 import { NotFoundError } from '../../utils/errors';
@@ -92,21 +92,8 @@ export const generateAnalytics = async (
 
     await findShortUrl(shortUrlId);
 
-    const startDate = calculateStartDate(timeFrame);
+    const count = await getAccessCountForShortUrl(shortUrlId, timeFrame);
 
-    const accessCount = await AccessLogModel.aggregate([
-      {
-        $match: {
-          shortUrlId,
-          accessTime: { $gte: startDate },
-        },
-      },
-      {
-        $count: 'accessCount',
-      },
-    ]);
-
-    const count = accessCount.length > 0 ? accessCount[0].accessCount : 0;
     res.status(200).json({ timeFrame, accessCount: count });
   } catch (error) {
     if (error instanceof NotFoundError) {
