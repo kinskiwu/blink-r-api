@@ -1,4 +1,9 @@
-import { encodeToBase62, isValidHttpUrl, isValidShortUrl } from './helpers';
+import {
+  calculateStartDate,
+  encodeToBase62,
+  isValidHttpUrl,
+  isValidShortUrl,
+} from './helpers';
 //todo: add collision test for encodetoBase62
 describe('encodeToBase62', () => {
   it('should correctly encode a given uniqueId to a base62 string', () => {
@@ -98,5 +103,45 @@ describe('isValidHttpUrl', () => {
     it('should return false for URLs with unsupported protocols', () => {
       expect(isValidHttpUrl('ftp://cloudflare.com')).toBe(false);
     });
+  });
+});
+
+describe('calculateStartDate', () => {
+  it('should return the current date minus one day for "24h" time frame', () => {
+    const result = calculateStartDate('24h');
+    const expectedDate = new Date();
+    expectedDate.setDate(expectedDate.getDate() - 1);
+    expectedDate.setHours(0, 0, 0, 0);
+    result.setHours(0, 0, 0, 0);
+    expect(result).toEqual(expectedDate);
+  });
+
+  it('should return the current date minus seven days for "7d" time frame', () => {
+    const result = calculateStartDate('7d');
+    const expectedDate = new Date();
+    expectedDate.setDate(expectedDate.getDate() - 7);
+    expectedDate.setHours(0, 0, 0, 0);
+    result.setHours(0, 0, 0, 0);
+    expect(result).toEqual(expectedDate);
+  });
+
+  it('should return epoch time for "all" time frame', () => {
+    const result = calculateStartDate('all');
+    expect(result).toEqual(new Date(0));
+  });
+
+  it('should return epoch time for an unexpected time frame value', () => {
+    const result = calculateStartDate('unexpectedValue');
+    expect(result).toEqual(new Date(0));
+  });
+
+  it('should default to epoch time for undefined time frame', () => {
+    const result = calculateStartDate();
+    expect(result).toEqual(new Date(0));
+  });
+
+  it('should handle empty string as an unexpected time frame and return epoch time', () => {
+    const result = calculateStartDate('');
+    expect(result).toEqual(new Date(0));
   });
 });
