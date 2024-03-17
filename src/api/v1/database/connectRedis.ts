@@ -1,9 +1,8 @@
 import { createClient } from 'redis';
 import 'dotenv/config';
 
-//todo: add redis url in .env
 export const connectRedis = async () => {
-  const client = createClient({
+  const redisClient = createClient({
     password: process.env.REDIS_PASSWORD,
     socket: {
       host: process.env.REDIS_HOST,
@@ -11,10 +10,8 @@ export const connectRedis = async () => {
     },
   });
 
-  client.on('error', (err) => console.log('Redis Client Error', err));
-
-  await client.connect();
-
+  redisClient.on('error', (err) => console.log('Redis Client Error', err));
+  await redisClient.connect();
   console.log('Connected to Redis');
-  return client;
+  return redisClient;
 };
