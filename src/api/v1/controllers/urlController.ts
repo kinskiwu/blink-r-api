@@ -9,8 +9,8 @@ import { NotFoundError } from '../../utils/errors';
 import { RedisClientType } from 'redis';
 /**
  * Creates a short url for a given long url and stores it in the database.
- * @param req - The request object containing the long url.
- * @param res - The response object.
+ * @param req - The request object containing body 'longUrl'.
+ * @param res - The response object used to send back a short URL or send back an error.
  * @param next - The next middleware function in the stack.
  */
 export const createShortUrl = async (
@@ -43,9 +43,9 @@ export const createShortUrl = async (
 /**
  * Redirects a short URL to its corresponding long URL.
  * Utilizes caching to improve performance by storing frequently accessed URLs.
- * @param req - The request object, containing the shortUrlId parameter.
+ * @param req - The request object containing path param 'shortUrlId'.
  * @param res - The response object used to redirect to the long URL or send back an error.
- * @param next - The next middleware function in the stack for error handling.
+ * @param next - The next middleware function in the stack.
  */
 export const redirectToLongUrl = async (
   req: Request,
@@ -89,9 +89,9 @@ export const redirectToLongUrl = async (
 /**
  * Generates and returns analytics data for a given short URL based on the requested time frame.
  * Utilizes caching to improve performance by storing frequently accessed access counts.
- * @param req - The request object, containing query parameters 'shortUrlId' and 'timeFrame'.
- * @param res - The response object, used for sending analytics data back to the client.
- * @param next - The next middleware function, invoked for error handling.
+ * @param req - The request object containing query parameters 'shortUrlId' and 'timeFrame'.
+ * @param res - The response object used to send back analytics data or send back an error.
+ * @param next - The next middleware function in the stack.
  */
 export const generateAnalytics = async (
   req: Request,
