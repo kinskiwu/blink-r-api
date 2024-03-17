@@ -45,22 +45,35 @@ export const redirectToLongUrl = async (
   res: Response,
   next: NextFunction
 ) => {
+  const { shortUrlId } = req.params;
+  const { redisClient } = req.app.locals;
+
   try {
-    const { shortUrlId } = req.params;
-    const urlDocument = await findShortUrl(shortUrlId);
     const accessLogDocument = new AccessLogModel({ shortUrlId });
     await accessLogDocument.save();
+
+    const cachedUrl = await redisClient.get(`shortUrl:${shortUrlId}`);
+    if (cachedUrl) {
+      console.log('Cache hit');
+      return res.redirect(301, cachedUrl);
+    }
+
+    console.log('Cache miss');
+    const urlDocument = await findShortUrl(shortUrlId);
+
+    await redisClient.set(`shortUrl:${shortUrlId}`, urlDocument.longUrl, {
+      EX: 3600,
+    });
 
     res.redirect(301, urlDocument.longUrl);
   } catch (error) {
     if (error instanceof NotFoundError) {
       return res.status(400).json({ error: error.message });
     }
-
     return next({
       status: 500,
       message: 'Server error encountered while redirecting short URL.',
-      err: error,
+      error,
     });
   }
 };
