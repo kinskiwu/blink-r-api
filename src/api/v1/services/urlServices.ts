@@ -1,6 +1,7 @@
 import { v4 as uuid } from 'uuid';
 import { encodeToBase62 } from '../../utils/helpers';
 import { UrlModel } from '../models/urls.model';
+import { NotFoundError } from '../../utils/errors';
 
 /**
  * Generates a short URL identifier.
@@ -40,4 +41,16 @@ export const findOrCreateShortUrl = async (longUrl: string) => {
   }
 
   return shortUrlId;
+};
+
+export const findShortUrl = async (shortUrlId) => {
+  const urlDocument = await UrlModel.findOne({
+    'shortUrls.shortUrlId': { $eq: shortUrlId },
+  });
+
+  if (!urlDocument) {
+    throw new NotFoundError('Short URL not found');
+  }
+
+  return urlDocument;
 };
