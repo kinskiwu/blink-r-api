@@ -56,15 +56,19 @@ export const findOrCreateShortUrl = async (
  */
 
 export const findShortUrl = async (shortUrlId): Promise<Url> => {
-  const urlDocument = await UrlModel.findOne({
-    'shortUrls.shortUrlId': { $eq: shortUrlId },
-  });
+  try {
+    const urlDocument = await UrlModel.findOne({
+      'shortUrls.shortUrlId': { $eq: shortUrlId },
+    });
 
-  if (!urlDocument) {
-    throw new NotFoundError('Short URL not found');
+    if (!urlDocument) {
+      throw new NotFoundError('Short URL not found');
+    }
+
+    return urlDocument;
+  } catch (err) {
+    throw new Error('An error occurred while finding the short URL');
   }
-
-  return urlDocument;
 };
 
 /**
