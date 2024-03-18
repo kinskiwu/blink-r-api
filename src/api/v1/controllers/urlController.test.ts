@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import {
   findOrCreateShortUrl,
+  findShortUrl,
   getAccessCountForShortUrl,
 } from '../services/urlServices';
 import {
@@ -39,6 +40,14 @@ describe('URL Controller Tests', () => {
     nextFunction = jest.fn();
   });
 
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
+
   describe('createShortUrl Controller', () => {
     it('should successfully create and return a short URL', async () => {
       const mockLongUrl = 'http://cloudflare.com';
@@ -58,6 +67,22 @@ describe('URL Controller Tests', () => {
         shortUrl: `www.shorturl.com/${mockShortUrlId}`,
       });
     });
+    it('should call next with an error when findOrCreateShortUrl service fails', async () => {
+      const error = new Error('Service Error');
+      mockReq.body = { longUrl: 'http://cloudflare.com' };
+      (findOrCreateShortUrl as jest.Mock).mockRejectedValue(error);
+
+      await createShortUrl(
+        mockReq as Request,
+        mockRes as Response,
+        nextFunction
+      );
+
+      expect(findOrCreateShortUrl).toHaveBeenCalledWith(
+        'http://cloudflare.com'
+      );
+      expect(nextFunction).toHaveBeenCalledWith(error);
+    });
   });
 
   describe('redirectToLongUrl Controller', () => {
@@ -75,6 +100,21 @@ describe('URL Controller Tests', () => {
 
       expect(mockRes.redirect).toHaveBeenCalledWith(301, mockLongUrl);
     });
+
+    it('should handle when no cache or database entry exists', async () => {
+      mockReq.params = { shortUrlId: 'nonexistent' };
+      (mockRedisClient.get as jest.Mock).mockResolvedValue(null);
+      (findShortUrl as jest.Mock).mockRejectedValue(new Error('Not found'));
+
+      await redirectToLongUrl(
+        mockReq as Request,
+        mockRes as Response,
+        nextFunction
+      );
+
+      expect(findShortUrl).toHaveBeenCalledWith('nonexistent');
+      expect(nextFunction).toHaveBeenCalledWith(expect.any(Error));
+    });
   });
 
   describe('generateAnalytics Controller', () => {
@@ -82,7 +122,10 @@ describe('URL Controller Tests', () => {
       const mockShortUrlId = 'cloudflare';
       const mockTimeFrame = '24h';
       const mockAccessCount = 5;
-      mockReq.query = { shortUrlId: mockShortUrlId, timeFrame: mockTimeFrame };
+      mockReq.query = {
+        shortUrlId: mockShortUrlId,
+        timeFrame: mockTimeFrame,
+      };
       (mockRedisClient.get as jest.Mock).mockResolvedValue(null);
       (getAccessCountForShortUrl as jest.Mock).mockResolvedValue(
         mockAccessCount
@@ -98,6 +141,64 @@ describe('URL Controller Tests', () => {
       expect(mockRes.json).toHaveBeenCalledWith({
         timeFrame: mockTimeFrame,
         accessCount: mockAccessCount,
+      });
+    });
+
+    it('should handle unsupported time frames by treating them as "all"', async () => {
+      mockReq.query = {
+        shortUrlId: 'validShortId',
+        timeFrame: 'unsupported',
+      };
+      (mockRedisClient.get as jest.Mock).mockResolvedValue(null);
+      (findShortUrl as jest.Mock).mockResolvedValue(true); // Simulate URL found
+      (getAccessCountForShortUrl as jest.Mock).mockResolvedValue(10);
+
+      await generateAnalytics(
+        mockReq as Request,
+        mockRes as Response,
+        nextFunction
+      );
+
+      expect(findShortUrl).toHaveBeenCalled();
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        timeFrame: 'all',
+        accessCount: 10,
+      });
+    });
+
+    it('should return a 404 error if the short URL is not found', async () => {
+      mockReq.query = { shortUrlId: 'nonexistent', timeFrame: '24h' };
+      (mockRedisClient.get as jest.Mock).mockResolvedValue(null);
+      (findShortUrl as jest.Mock).mockRejectedValue(new Error('Not found'));
+
+      await generateAnalytics(
+        mockReq as Request,
+        mockRes as Response,
+        nextFunction
+      );
+
+      expect(findShortUrl).toHaveBeenCalledWith('nonexistent');
+      expect(nextFunction).toHaveBeenCalledWith(expect.any(Error));
+    });
+
+    it('should handle when no analytics data is available', async () => {
+      mockReq.query = { shortUrlId: 'validShortId', timeFrame: '24h' };
+      (mockRedisClient.get as jest.Mock).mockResolvedValue(null);
+      (findShortUrl as jest.Mock).mockResolvedValue(true);
+      (getAccessCountForShortUrl as jest.Mock).mockResolvedValue(0);
+
+      await generateAnalytics(
+        mockReq as Request,
+        mockRes as Response,
+        nextFunction
+      );
+
+      expect(findShortUrl).toHaveBeenCalled();
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        timeFrame: '24h',
+        accessCount: 0,
       });
     });
   });
