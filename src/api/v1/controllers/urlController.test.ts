@@ -150,7 +150,7 @@ describe('URL Controller Tests', () => {
         timeFrame: 'unsupported',
       };
       (mockRedisClient.get as jest.Mock).mockResolvedValue(null);
-      (findShortUrl as jest.Mock).mockResolvedValue(true); // Simulate URL found
+      (findShortUrl as jest.Mock).mockResolvedValue(true);
       (getAccessCountForShortUrl as jest.Mock).mockResolvedValue(10);
 
       await generateAnalytics(
