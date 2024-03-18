@@ -115,6 +115,42 @@ describe('URL Controller Tests', () => {
       expect(findShortUrl).toHaveBeenCalledWith('nonexistent');
       expect(nextFunction).toHaveBeenCalledWith(expect.any(Error));
     });
+
+    it('should redirect to long URL from cache when cache is hit', async () => {
+      const mockShortUrlId = 'cloudflare';
+      const mockLongUrl = 'http://cloudflare.com';
+      mockReq.params = { shortUrlId: mockShortUrlId };
+      (mockRedisClient.get as jest.Mock).mockResolvedValue(mockLongUrl); // Cache hit
+
+      await redirectToLongUrl(
+        mockReq as Request,
+        mockRes as Response,
+        nextFunction
+      );
+
+      expect(mockRes.redirect).toHaveBeenCalledWith(301, mockLongUrl);
+    });
+
+    it('should save to cache and redirect to long URL when cache is missed', async () => {
+      const mockShortUrlId = 'cloudflare';
+      const mockLongUrl = 'http://cloudflare.com';
+      mockReq.params = { shortUrlId: mockShortUrlId };
+      (mockRedisClient.get as jest.Mock).mockResolvedValue(null); // Cache miss
+      (findShortUrl as jest.Mock).mockResolvedValue({ longUrl: mockLongUrl });
+
+      await redirectToLongUrl(
+        mockReq as Request,
+        mockRes as Response,
+        nextFunction
+      );
+
+      expect(mockRedisClient.set).toHaveBeenCalledWith(
+        `shortUrl:${mockShortUrlId}`,
+        mockLongUrl,
+        { EX: expect.any(Number) }
+      );
+      expect(mockRes.redirect).toHaveBeenCalledWith(301, mockLongUrl);
+    });
   });
 
   describe('generateAnalytics Controller', () => {
@@ -199,6 +235,63 @@ describe('URL Controller Tests', () => {
       expect(mockRes.json).toHaveBeenCalledWith({
         timeFrame: '24h',
         accessCount: 0,
+      });
+    });
+
+    it('should return analytics data from cache when cache is hit', async () => {
+      const mockShortUrlId = 'cloudflare';
+      const mockTimeFrame = '24h';
+      const mockAccessCount = 5;
+      mockReq.query = { shortUrlId: mockShortUrlId, timeFrame: mockTimeFrame };
+      const cacheKey = `analytics:${mockShortUrlId}:${mockTimeFrame}`;
+      const cachedData = {
+        timeFrame: mockTimeFrame,
+        accessCount: mockAccessCount,
+      };
+      (mockRedisClient.get as jest.Mock).mockResolvedValue(
+        JSON.stringify(cachedData)
+      ); // Cache hit
+
+      await generateAnalytics(
+        mockReq as Request,
+        mockRes as Response,
+        nextFunction
+      );
+
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith(cachedData);
+    });
+
+    it('should save analytics data to cache when cache is missed', async () => {
+      const mockShortUrlId = 'cloudflare';
+      const mockTimeFrame = '24h';
+      const mockAccessCount = 5;
+      mockReq.query = { shortUrlId: mockShortUrlId, timeFrame: mockTimeFrame };
+      const cacheKey = `analytics:${mockShortUrlId}:${mockTimeFrame}`;
+      (mockRedisClient.get as jest.Mock).mockResolvedValue(null); // Cache miss
+      (findShortUrl as jest.Mock).mockResolvedValue(true);
+      (getAccessCountForShortUrl as jest.Mock).mockResolvedValue(
+        mockAccessCount
+      );
+
+      await generateAnalytics(
+        mockReq as Request,
+        mockRes as Response,
+        nextFunction
+      );
+
+      expect(mockRedisClient.set).toHaveBeenCalledWith(
+        cacheKey,
+        JSON.stringify({
+          timeFrame: mockTimeFrame,
+          accessCount: mockAccessCount,
+        }),
+        { EX: expect.any(Number) }
+      );
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        timeFrame: mockTimeFrame,
+        accessCount: mockAccessCount,
       });
     });
   });
