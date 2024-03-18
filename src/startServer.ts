@@ -3,17 +3,7 @@ import 'dotenv/config';
 import { connectDatabase } from './api/v1/database/connectDatabase';
 import mongoose from 'mongoose';
 import { connectRedis } from './api/v1/database/connectRedis';
-import winston from 'winston';
-
-const logger = winston.createLogger({
-  level: 'info',
-  format: winston.format.json(),
-  transports: [
-    new winston.transports.Console(),
-    new winston.transports.File({ filename: 'error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'combined.log' }),
-  ],
-});
+import { logger } from './api/utils/logger';
 
 const PORT = process.env.PORT || 4000;
 /**
