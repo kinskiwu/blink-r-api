@@ -22,7 +22,9 @@ export const createShortUrl = async (
     const { longUrl } = req.body;
     const shortUrlId = await findOrCreateShortUrl(longUrl);
 
-    res.status(201).json({ shortUrl: `www.shorturl.com/${shortUrlId}` });
+    const baseUrl = process.env.BASE_URL || 'www.shorturl.com';
+
+    res.status(201).json({ shortUrl: `${baseUrl}/${shortUrlId}` });
   } catch (err) {
     return next(err);
   }
