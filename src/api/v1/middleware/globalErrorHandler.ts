@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import { CustomError } from '../../utils/errors';
 
 /**
@@ -10,12 +10,12 @@ import { CustomError } from '../../utils/errors';
  * @param {Request} req - Express Request object, not directly used here.
  * @param {Response} res - Express Response object for sending the error response.
  */
+type ErrorHandlerError = Error | CustomError;
 
 export const globalErrorHandler = (
-  error: Error | CustomError,
+  error: ErrorHandlerError,
   req: Request,
-  res: Response,
-  next: NextFunction
+  res: Response
 ) => {
   if (error instanceof CustomError) {
     console.error(`${error.constructor.name}: ${error.message}`);
