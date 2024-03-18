@@ -70,7 +70,7 @@ export const redirectToLongUrl = async (
     const urlDocument = await findShortUrl(shortUrlId);
 
     await redisClient.set(`shortUrl:${shortUrlId}`, urlDocument.longUrl, {
-      EX: 3600,
+      EX: 604800, // 1 week
     });
 
     res.redirect(301, urlDocument.longUrl);
@@ -118,11 +118,11 @@ export const generateAnalytics = async (
 
     let expirationTime;
     if (timeFrame === 'all' || !req.query.timeFrame) {
-      expirationTime = 604800;
+      expirationTime = 86400; // 24 hrs
     } else if (timeFrame === '7d') {
-      expirationTime = 21600;
+      expirationTime = 21600; // 6 hrs
     } else if (timeFrame === '24h') {
-      expirationTime = 1800;
+      expirationTime = 1800; // 30 mins
     } else {
       expirationTime = 3600; // default to 1 hour
     }
