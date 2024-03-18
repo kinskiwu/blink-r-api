@@ -5,7 +5,6 @@ import {
   getAccessCountForShortUrl,
 } from '../services/urlServices';
 import { AccessLogModel } from '../models/accessLogs.model';
-import { DatabaseError } from '../../utils/errors';
 import { RedisClientType } from 'redis';
 
 /**
