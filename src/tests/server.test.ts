@@ -18,6 +18,15 @@ describe('Not Found Error Handler', () => {
   });
 });
 
+describe('GET / endpoint', () => {
+  it('should return a 200 status and a confirmation message', async () => {
+    const response = await request(app).get('/');
+
+    expect(response.status).toBe(200);
+    expect(response.text).toBe('Hey this is my API running 🥳');
+  });
+});
+
 describe('URL Shortening API', () => {
   describe('POST /api/v1/url/shorten', () => {
     it('should create a short URL for a valid long URL', async () => {
