@@ -5,7 +5,7 @@ import {
   getAccessCountForShortUrl,
 } from '../services/urlServices';
 import { AccessLogModel } from '../models/accessLogs.model';
-import { NotFoundError } from '../../utils/errors';
+import { DatabaseError, NotFoundError } from '../../utils/errors';
 import { RedisClientType } from 'redis';
 
 /**
@@ -24,11 +24,7 @@ export const createShortUrl = async (
     const shortUrlId = await findOrCreateShortUrl(longUrl);
 
     if (!shortUrlId) {
-      next({
-        status: 500,
-        message: 'Failed to create short URL.',
-      });
-      return;
+      throw new DatabaseError('Failed to create short URL');
     }
 
     res.status(201).json({ shortUrl: `www.shorturl.com/${shortUrlId}` });
