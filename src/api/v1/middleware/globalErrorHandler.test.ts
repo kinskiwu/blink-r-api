@@ -74,4 +74,58 @@ describe('globalErrorHandler', () => {
       err: 'Cache retrieval failed',
     });
   });
+
+  it('should handle errors thrown as plain objects', () => {
+    const err = { someProperty: 'This is an object thrown as an error' };
+    globalErrorHandler(
+      err as any,
+      mockRequest as Request,
+      mockResponse as Response,
+      nextFunction
+    );
+    expect(mockResponse.status).toHaveBeenCalledWith(500);
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      err: 'An unexpected error occurred.',
+    });
+  });
+
+  it('should handle errors without a message', () => {
+    const err = new Error();
+    globalErrorHandler(
+      err,
+      mockRequest as Request,
+      mockResponse as Response,
+      nextFunction
+    );
+    expect(mockResponse.status).toHaveBeenCalledWith(500);
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      err: 'An unexpected error occurred.',
+    });
+  });
+
+  it('should properly handle a null error', () => {
+    globalErrorHandler(
+      null as any,
+      mockRequest as Request,
+      mockResponse as Response,
+      nextFunction
+    );
+    expect(mockResponse.status).toHaveBeenCalledWith(500);
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      err: 'An unexpected error occurred.',
+    });
+  });
+
+  it('should properly handle an undefined error', () => {
+    globalErrorHandler(
+      undefined as any,
+      mockRequest as Request,
+      mockResponse as Response,
+      nextFunction
+    );
+    expect(mockResponse.status).toHaveBeenCalledWith(500);
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      err: 'An unexpected error occurred.',
+    });
+  });
 });
