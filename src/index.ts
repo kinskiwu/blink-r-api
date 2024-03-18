@@ -25,8 +25,8 @@ app.get('/', (req, res) => {
 app.use('/api/v1/url', urlRouter);
 
 // middleware for handling 404
-app.use((req: Request, res: Response) => {
-  res.status(404).json({ error: 'Not Found' });
+app.all('*', (req: Request, res: Response) => {
+  return res.status(404).json({ error: 'Not Found' });
 });
 
 // moddleware for gloabl error handling
