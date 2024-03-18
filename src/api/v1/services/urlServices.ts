@@ -1,7 +1,7 @@
 import { v4 as uuid } from 'uuid';
 import { calculateStartDate, encodeToBase62 } from '../../utils/helpers';
 import { UrlModel } from '../models/urls.model';
-import { NotFoundError } from '../../utils/errors';
+import { CustomError, DatabaseError, NotFoundError } from '../../utils/errors';
 import { AccessLogModel } from '../models/accessLogs.model';
 import { Url } from '../types/DbModelTypes';
 
@@ -67,7 +67,11 @@ export const findShortUrl = async (shortUrlId): Promise<Url> => {
 
     return urlDocument;
   } catch (err) {
-    throw new Error('An error occurred while finding the short URL');
+    if (err instanceof CustomError) {
+      throw err;
+    } else {
+      throw new DatabaseError('An error occurred while accessing the database');
+    }
   }
 };
 
