@@ -1,9 +1,11 @@
 import { globalErrorHandler } from './globalErrorHandler';
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
+import { NotFoundError, DatabaseError, CacheError } from '../../utils/errors';
 
 describe('globalErrorHandler', () => {
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
+  const nextFunction: NextFunction = jest.fn();
 
   beforeEach(() => {
     mockRequest = {};
@@ -17,93 +19,59 @@ describe('globalErrorHandler', () => {
     jest.resetAllMocks();
   });
 
-  afterAll(() => {
-    jest.restoreAllMocks();
-  });
-
-  it('should handle a default error', () => {
-    const err = new Error('An error occurred');
+  it('should handle a default error correctly', () => {
+    const err = new Error('An unexpected error occurred');
     globalErrorHandler(
-      err as any,
+      err,
       mockRequest as Request,
-      mockResponse as Response
+      mockResponse as Response,
+      nextFunction
     );
     expect(mockResponse.status).toHaveBeenCalledWith(500);
     expect(mockResponse.json).toHaveBeenCalledWith({
-      err: 'An error occurred',
+      err: 'An unexpected error occurred.',
     });
   });
 
-  it('should handle a custom error with custom status and message', () => {
-    const err = {
-      log: 'Custom error log',
-      status: 404,
-      message: { err: 'Custom error message' },
-    };
+  it('should handle NotFoundError with a 404 status', () => {
+    const err = new NotFoundError('Resource not found');
     globalErrorHandler(
-      err as any,
+      err,
       mockRequest as Request,
-      mockResponse as Response
+      mockResponse as Response,
+      nextFunction
     );
     expect(mockResponse.status).toHaveBeenCalledWith(404);
     expect(mockResponse.json).toHaveBeenCalledWith({
-      err: 'Custom error message',
+      err: 'Resource not found',
     });
   });
 
-  it('should handle an error without log property', () => {
-    const err = {
-      status: 400,
-      message: { err: 'Error without log' },
-    };
+  it('should handle DatabaseError with a 500 status', () => {
+    const err = new DatabaseError('Database connection error');
     globalErrorHandler(
-      err as any,
+      err,
       mockRequest as Request,
-      mockResponse as Response
-    );
-    expect(mockResponse.status).toHaveBeenCalledWith(400);
-    expect(mockResponse.json).toHaveBeenCalledWith({
-      err: 'Error without log',
-    });
-  });
-
-  it('should handle an error without message property', () => {
-    const err = {
-      log: 'Error without message',
-      status: 500,
-    };
-    globalErrorHandler(
-      err as any,
-      mockRequest as Request,
-      mockResponse as Response
+      mockResponse as Response,
+      nextFunction
     );
     expect(mockResponse.status).toHaveBeenCalledWith(500);
     expect(mockResponse.json).toHaveBeenCalledWith({
-      err: 'An error occurred',
+      err: 'Database connection error',
     });
   });
 
-  it('should log the default error message when error object is empty', () => {
+  it('should handle CacheError with a 500 status', () => {
+    const err = new CacheError('Cache retrieval failed');
     globalErrorHandler(
-      {} as any,
+      err,
       mockRequest as Request,
-      mockResponse as Response
+      mockResponse as Response,
+      nextFunction
     );
     expect(mockResponse.status).toHaveBeenCalledWith(500);
     expect(mockResponse.json).toHaveBeenCalledWith({
-      err: 'An error occurred',
-    });
-  });
-
-  it('should log the default error message when error object is undefined', () => {
-    globalErrorHandler(
-      undefined as any,
-      mockRequest as Request,
-      mockResponse as Response
-    );
-    expect(mockResponse.status).toHaveBeenCalledWith(500);
-    expect(mockResponse.json).toHaveBeenCalledWith({
-      err: 'An error occurred',
+      err: 'Cache retrieval failed',
     });
   });
 });
