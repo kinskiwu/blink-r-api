@@ -4,12 +4,16 @@ import { globalErrorHandler } from './api/v1/middleware/globalErrorHandler';
 import helmet from 'helmet';
 import { rateLimitMiddleware } from './api/v1/middleware/rateLimitHandler';
 import compression from 'compression';
+import cors from 'cors';
 
 const app: Express = express();
 
 // middlewares for request parsing
 app.use(express.json({ limit: '5kb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// cors middleware
+app.use(cors());
 
 // middleware for setting set HTTP headers
 app.use(helmet());
