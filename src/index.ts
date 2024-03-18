@@ -28,12 +28,12 @@ app.get('/', (req, res) => {
 // routing middle ware for url related endpoint
 app.use('/api/v1/url', urlRouter);
 
-// catch all 404 route handler
-app.all('*', (req: Request, res: Response) => {
+// middleware for 404 errors
+app.use((req: Request, res: Response) => {
   return res.status(404).json({ error: 'Not Found' });
 });
 
-// moddleware for gloabl error handling
+// middleware for gloabl error handling
 app.use(globalErrorHandler);
 
 export default app;
