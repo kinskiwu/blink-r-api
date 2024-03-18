@@ -1,26 +1,33 @@
-import { ErrorRequestHandler, Request, Response } from 'express';
+import { Request, Response } from 'express';
+
+interface CustomError {
+  log: string;
+  status: number;
+  message: string;
+}
 
 /**
- * Global error handler function to catch and respond to errors occurring in middleware.
- * @param err - The error object or custom error passed from middleware.
- * @param req - The HTTP request object.
- * @param res - The HTTP response object used to send a JSON response with error details.
+ * Global error handler for Express that intercepts and standardizes error responses.
+ * Logs error details for internal review and returns a structured error message to the client.
+ * Defaults are provided for missing error properties to ensure a consistent response format.
+ *
+ * @param {CustomError} err - Error object potentially containing `log`, `status`, and `message`.
+ * @param {Request} req - Express Request object, not directly used here.
+ * @param {Response} res - Express Response object for sending the error response.
  */
-
 export const globalErrorHandler = (
-  err: ErrorRequestHandler,
+  err: CustomError,
   req: Request,
   res: Response
 ) => {
-  // define default error structure
-  const defaultErr = {
+  const defaultErr: CustomError = {
     log: 'Express error handler caught unknown middleware error',
     status: 500,
-    message: { err: 'An error occurred' },
+    message: 'An error occurred',
   };
 
   // combine default error with custom props
-  const errorObj = Object.assign({}, defaultErr, err);
+  const errorObj = { ...defaultErr, ...err };
   console.log(errorObj.log);
 
   return res.status(errorObj.status).json(errorObj.message);
