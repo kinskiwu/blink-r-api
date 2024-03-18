@@ -243,7 +243,6 @@ describe('URL Controller Tests', () => {
       const mockTimeFrame = '24h';
       const mockAccessCount = 5;
       mockReq.query = { shortUrlId: mockShortUrlId, timeFrame: mockTimeFrame };
-      const cacheKey = `analytics:${mockShortUrlId}:${mockTimeFrame}`;
       const cachedData = {
         timeFrame: mockTimeFrame,
         accessCount: mockAccessCount,

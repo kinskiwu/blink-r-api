@@ -25,7 +25,7 @@ describe('UrlModel Tests', () => {
   it('should create and save UrlModel successfully', async () => {
     const urlData = {
       longUrlId: '123',
-      longUrl: 'https://mockexample.com',
+      longUrl: 'https://cloudflare.com',
       shortUrls: [{ shortUrlId: 'abc123', createdAt: new Date() }],
     };
     const validUrl = new UrlModel(urlData);
