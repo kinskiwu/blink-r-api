@@ -7,7 +7,7 @@ import {
 import { AccessLogModel } from '../models/accessLogs.model';
 import { NotFoundError } from '../../utils/errors';
 import { RedisClientType } from 'redis';
-// todo: update logging + extract caching functionalities & access logs update to separate services
+
 /**
  * Creates a short url for a given long url and stores it in the database.
  * @param req - The request object containing body 'longUrl'.
@@ -71,7 +71,7 @@ export const redirectToLongUrl = async (
     const urlDocument = await findShortUrl(shortUrlId);
 
     await redisClient.set(`shortUrl:${shortUrlId}`, urlDocument.longUrl, {
-      EX: 604800, // 1 week
+      EX: process.env.REDIS_EXPIRATION_TIME_LONGURL || 604800, // 1 week,
     });
 
     res.redirect(301, urlDocument.longUrl);
@@ -114,24 +114,23 @@ export const generateAnalytics = async (
 
     console.log('Cache miss');
     await findShortUrl(shortUrlId);
-
     const count = await getAccessCountForShortUrl(shortUrlId, timeFrame);
 
     let expirationTime;
     if (timeFrame === 'all' || !req.query.timeFrame) {
-      expirationTime = 86400; // 24 hrs
+      expirationTime = process.env.REDIS_EXPIRATION_TIME_ACCESSLOGS_ALL || 86400; // 24 hrs
     } else if (timeFrame === '7d') {
-      expirationTime = 21600; // 6 hrs
+      expirationTime = process.env.REDIS_EXPIRATION_TIME_ACCESSLOGS_7D || 21600; // 6 hrs
     } else if (timeFrame === '24h') {
-      expirationTime = 1800; // 30 mins
+      expirationTime = process.env.REDIS_EXPIRATION_TIME_ACCESSLOGS_24H || 1800; // 30 mins
     } else {
-      expirationTime = 3600; // default to 1 hour
+      expirationTime = process.env.REDIS_EXPIRATION_TIME_ACCESSLOGS_DEFAULT || 3600; // 1 hr
     }
 
     await redisClient.set(
       cacheKey,
       JSON.stringify({ timeFrame, accessCount: count }),
-      { EX: expirationTime }
+      { EX: Number(expirationTime) }
     );
 
     res.status(200).json({ timeFrame, accessCount: count });
