@@ -14,7 +14,7 @@ import { CustomError } from '../../utils/errors';
 type ErrorHandlerError = Error | CustomError;
 
 export const globalErrorHandler = (
-  err: ErrorHandlerError,
+  err: ErrorHandlerError | null | undefined,
   req: Request,
   res: Response,
   next: NextFunction
@@ -22,8 +22,11 @@ export const globalErrorHandler = (
   if (err instanceof CustomError) {
     console.error(`${err.constructor.name}: ${err.message}`);
     return res.status(err.status).json({ err: err.message });
-  } else {
+  } else if (err) {
     console.error(`Unexpected error: ${err.message}`);
+    return res.status(500).json({ err: 'An unexpected error occurred.' });
+  } else {
+    console.error('Unexpected error: Error object is null or undefined');
     return res.status(500).json({ err: 'An unexpected error occurred.' });
   }
 };
