@@ -95,19 +95,23 @@ export const getAccessCountForShortUrl = async (
   shortUrlId: string,
   timeFrame: string
 ): Promise<number> => {
-  const startDate = calculateStartDate(timeFrame);
+  try {
+    const startDate = calculateStartDate(timeFrame);
 
-  const accessCount = await AccessLogModel.aggregate([
-    {
-      $match: {
-        shortUrlId,
-        accessTime: { $gte: startDate },
+    const accessCount = await AccessLogModel.aggregate([
+      {
+        $match: {
+          shortUrlId,
+          accessTime: { $gte: startDate },
+        },
       },
-    },
-    {
-      $count: 'accessCount',
-    },
-  ]);
+      {
+        $count: 'accessCount',
+      },
+    ]);
 
-  return accessCount.length > 0 ? accessCount[0].accessCount : 0;
+    return accessCount.length > 0 ? accessCount[0].accessCount : 0;
+  } catch (error) {
+    throw new DatabaseError('An error occurred while accessing the database');
+  }
 };
