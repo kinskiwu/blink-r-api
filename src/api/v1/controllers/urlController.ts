@@ -100,7 +100,7 @@ export const generateAnalytics = async (
 ) => {
   try {
     const shortUrlId = req.query.shortUrlId as string;
-    const timeFrame = req.query.timeFrame as string;
+    const timeFrame = (req.query.timeFrame as string) || 'all';
     const redisClient: RedisClientType = req.app.locals.redisClient;
 
     const cacheKey = `analytics:${shortUrlId}:${timeFrame}`;

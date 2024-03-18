@@ -62,7 +62,7 @@ export const isValidHttpUrl = (input): boolean => {
  * @param timeFrame The time frame to calculate the start date for ('24h' or '7d').Default to 'all' if empty string provided.
  * @returns The calculated start date.
  */
-export const calculateStartDate = (timeFrame: string = 'all'): Date => {
+export const calculateStartDate = (timeFrame: string): Date => {
   const currentDate = new Date();
   // default handles any unexpected timeFrame values to 'all'
   switch (timeFrame) {
