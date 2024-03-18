@@ -22,7 +22,11 @@
     "testEnvironment": "node",
     "transform": {
       "^.+\\.(ts|tsx)$": "ts-jest"
-    }
+    },
+    "testPathIgnorePatterns": [
+    "/node_modules/",
+    "/dist/"
+    ]
   },
   "dependencies": {
     "compression": "^1.7.4",
