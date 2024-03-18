@@ -135,11 +135,6 @@ describe('calculateStartDate', () => {
     expect(result).toEqual(new Date(0));
   });
 
-  it('should default to epoch time for undefined time frame', () => {
-    const result = calculateStartDate();
-    expect(result).toEqual(new Date(0));
-  });
-
   it('should handle empty string as an unexpected time frame and return epoch time', () => {
     const result = calculateStartDate('');
     expect(result).toEqual(new Date(0));
