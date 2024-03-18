@@ -2,7 +2,6 @@ import mongoose from 'mongoose';
 import 'dotenv/config';
 
 const mongoDBUrl = process.env.MONGODB_URL;
-// validate existence of mongodb connection url
 if (!mongoDBUrl) {
   throw new Error('MONGODB_URL environment variable is not set.');
 }
