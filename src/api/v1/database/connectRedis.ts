@@ -1,5 +1,6 @@
 import { createClient } from 'redis';
 import 'dotenv/config';
+import { logger } from '../../utils/logger';
 
 /**
  * Initializes and connects a Redis client using environment variables.
@@ -23,13 +24,13 @@ export const connectRedis = async () => {
     },
   });
 
-  redisClient.on('error', (err) => console.log('Redis Client Error', err));
+  redisClient.on('error', (err) => logger.info('Redis Client Error', err));
 
   try {
     await redisClient.connect();
-    console.log('Connected to Redis');
+    logger.info('Connected to Redis');
   } catch (error) {
-    console.error('Error connecting to Redis', error);
+    logger.error('Error connecting to Redis', error);
   }
 
   return redisClient;

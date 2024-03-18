@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { CustomError } from '../../utils/errors';
+import { logger } from '../../utils/logger';
 
 /**
  * Global error handler for Express that intercepts and standardizes error responses.
@@ -20,13 +21,13 @@ export const globalErrorHandler = (
   next: NextFunction
 ) => {
   if (err instanceof CustomError) {
-    console.error(`${err.constructor.name}: ${err.message}`);
+    logger.error(`${err.constructor.name}: ${err.message}`);
     return res.status(err.status).json({ err: err.message });
   } else if (err) {
-    console.error(`Unexpected error: ${err.message}`);
+    logger.error(`Unexpected error: ${err.message}`);
     return res.status(500).json({ err: 'An unexpected error occurred.' });
   } else {
-    console.error('Unexpected error: Error object is null or undefined');
+    logger.error('Unexpected error: Error object is null or undefined');
     return res.status(500).json({ err: 'An unexpected error occurred.' });
   }
 };

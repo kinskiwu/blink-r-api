@@ -6,6 +6,7 @@ import {
 } from '../services/urlServices';
 import { AccessLogModel } from '../models/accessLogs.model';
 import { RedisClientType } from 'redis';
+import { logger } from '../../utils/logger';
 
 /**
  * Creates a short url for a given long url and stores it in the database.
@@ -52,11 +53,11 @@ export const redirectToLongUrl = async (
     const cachedUrl = await redisClient.get(`shortUrl:${shortUrlId}`);
 
     if (cachedUrl) {
-      console.log('Cache hit');
+      logger.info('Cache hit');
       return res.redirect(301, cachedUrl);
     }
 
-    console.log('Cache miss');
+    logger.info('Cache miss');
     const urlDocument = await findShortUrl(shortUrlId);
 
     await redisClient.set(`shortUrl:${shortUrlId}`, urlDocument.longUrl, {
@@ -93,11 +94,11 @@ export const generateAnalytics = async (
     const cachedData = await redisClient.get(cacheKey);
 
     if (cachedData) {
-      console.log('Cache hit');
+      logger.info('Cache hit');
       return res.status(200).json(JSON.parse(cachedData));
     }
 
-    console.log('Cache miss');
+    logger.info('Cache miss');
     await findShortUrl(shortUrlId);
     const count = await getAccessCountForShortUrl(shortUrlId, timeFrame);
 
