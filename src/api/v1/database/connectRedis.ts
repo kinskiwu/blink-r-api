@@ -1,6 +1,9 @@
 import { createClient } from 'redis';
 import 'dotenv/config';
 
+/**
+ * Initializes and connects a Redis client using environment variables.
+ */
 export const connectRedis = async () => {
   if (
     !process.env.REDIS_PASSWORD ||

@@ -7,7 +7,8 @@ if (!mongoDBUrl) {
 }
 
 /**
- * Establishes a connection to the mongodb database.
+ * Initiates a connection to MongoDB.
+ * Utilizes mongoose to connect to the MongoDB instance.
  */
 export const connectDatabase = async () => {
   try {
