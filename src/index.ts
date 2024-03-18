@@ -28,7 +28,7 @@ app.get('/', (req, res) => {
 // routing middle ware for url related endpoint
 app.use('/api/v1/url', urlRouter);
 
-// middleware for 404 errors
+// middleware for 404 error handling
 app.use((req: Request, res: Response) => {
   return res.status(404).json({ error: 'Not Found' });
 });
