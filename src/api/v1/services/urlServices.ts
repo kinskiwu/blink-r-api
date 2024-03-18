@@ -24,27 +24,36 @@ export const generateShortUrl = (uniqueId: string = uuid()): string => {
 export const findOrCreateShortUrl = async (
   longUrl: string
 ): Promise<string> => {
-  let urlDocument = await UrlModel.findOne({ longUrl: { $eq: longUrl } });
-  let shortUrlId;
+  try {
+    let urlDocument = await UrlModel.findOne({ longUrl: { $eq: longUrl } });
 
-  if (!urlDocument) {
-    const longUrlId = uuid();
-    shortUrlId = generateShortUrl(longUrlId);
+    let shortUrlId;
 
-    urlDocument = new UrlModel({
-      longUrlId,
-      longUrl,
-      shortUrls: [{ shortUrlId }],
-    });
+    if (!urlDocument) {
+      const longUrlId = uuid();
+      shortUrlId = generateShortUrl(longUrlId);
 
-    await urlDocument.save();
-  } else {
-    shortUrlId = generateShortUrl();
-    urlDocument.shortUrls.push({ shortUrlId });
-    await urlDocument.save();
+      urlDocument = new UrlModel({
+        longUrlId,
+        longUrl,
+        shortUrls: [{ shortUrlId }],
+      });
+
+      await urlDocument.save();
+    } else {
+      shortUrlId = generateShortUrl();
+      urlDocument.shortUrls.push({ shortUrlId });
+      await urlDocument.save();
+    }
+
+    return shortUrlId;
+  } catch (err) {
+    if (err instanceof CustomError) {
+      throw err;
+    } else {
+      throw new DatabaseError('An error occurred while accessing the database');
+    }
   }
-
-  return shortUrlId;
 };
 
 /**

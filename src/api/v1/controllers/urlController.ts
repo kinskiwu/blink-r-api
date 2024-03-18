@@ -5,7 +5,7 @@ import {
   getAccessCountForShortUrl,
 } from '../services/urlServices';
 import { AccessLogModel } from '../models/accessLogs.model';
-import { DatabaseError, NotFoundError } from '../../utils/errors';
+import { DatabaseError } from '../../utils/errors';
 import { RedisClientType } from 'redis';
 
 /**
@@ -23,17 +23,9 @@ export const createShortUrl = async (
     const { longUrl } = req.body;
     const shortUrlId = await findOrCreateShortUrl(longUrl);
 
-    if (!shortUrlId) {
-      throw new DatabaseError('Failed to create short URL');
-    }
-
     res.status(201).json({ shortUrl: `www.shorturl.com/${shortUrlId}` });
   } catch (err) {
-    return next({
-      status: 500,
-      message: 'Server error encountered while creating short URL.',
-      err,
-    });
+    return next(err);
   }
 };
 
@@ -71,15 +63,8 @@ export const redirectToLongUrl = async (
     });
 
     res.redirect(301, urlDocument.longUrl);
-  } catch (error) {
-    if (error instanceof NotFoundError) {
-      return res.status(400).json({ error: error.message });
-    }
-    return next({
-      status: 500,
-      message: 'Server error encountered while redirecting short URL.',
-      error,
-    });
+  } catch (err) {
+    return next(err);
   }
 };
 
@@ -135,15 +120,7 @@ export const generateAnalytics = async (
     );
 
     res.status(200).json({ timeFrame, accessCount: count });
-  } catch (error) {
-    if (error instanceof NotFoundError) {
-      return res.status(400).json({ error: error.message });
-    }
-
-    return next({
-      status: 500,
-      message: 'Server error encountered while generating analytics.',
-      err: error,
-    });
+  } catch (err) {
+    return next(err);
   }
 };
