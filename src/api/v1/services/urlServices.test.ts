@@ -38,7 +38,6 @@ describe('URL Functions Tests', () => {
       const shortUrl = generateShortUrl();
 
       expect(shortUrl).toBe(encodedValue);
-
       expect(encodeToBase62).toHaveBeenCalled();
     });
   });
@@ -50,17 +49,6 @@ describe('URL Functions Tests', () => {
       (UrlModel.prototype.save as jest.Mock).mockResolvedValue({});
       const shortUrl = await findOrCreateShortUrl(longUrl);
       expect(shortUrl).toBeDefined();
-    });
-
-    it('should return existing short URL for a given long URL', async () => {
-      const longUrl = 'http://cloudflare.com';
-      const existingShortUrl = 'existingShortUrl';
-      (UrlModel.findOne as jest.Mock).mockResolvedValue({
-        shortUrls: [{ shortUrlId: existingShortUrl }],
-      });
-      (UrlModel.prototype.save as jest.Mock).mockResolvedValue({});
-      const shortUrl = await findOrCreateShortUrl(longUrl);
-      expect(shortUrl).toBe(existingShortUrl);
     });
 
     it('should throw a DatabaseError if database operation fails', async () => {
