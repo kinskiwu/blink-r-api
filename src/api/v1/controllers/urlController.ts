@@ -101,7 +101,10 @@ export const generateAnalytics = async (
 ) => {
   try {
     const shortUrlId = req.query.shortUrlId as string;
-    const timeFrame = (req.query.timeFrame as string) || 'all';
+    let timeFrame = req.query.timeFrame;
+    if (!timeFrame || (timeFrame !== '24h' && timeFrame !== '7d')) {
+      timeFrame = 'all';
+    }
     const redisClient: RedisClientType = req.app.locals.redisClient;
 
     const cacheKey = `analytics:${shortUrlId}:${timeFrame}`;
@@ -118,13 +121,15 @@ export const generateAnalytics = async (
 
     let expirationTime;
     if (timeFrame === 'all' || !req.query.timeFrame) {
-      expirationTime = process.env.REDIS_EXPIRATION_TIME_ACCESSLOGS_ALL || 86400; // 24 hrs
+      expirationTime =
+        process.env.REDIS_EXPIRATION_TIME_ACCESSLOGS_ALL || 86400; // 24 hrs
     } else if (timeFrame === '7d') {
       expirationTime = process.env.REDIS_EXPIRATION_TIME_ACCESSLOGS_7D || 21600; // 6 hrs
     } else if (timeFrame === '24h') {
       expirationTime = process.env.REDIS_EXPIRATION_TIME_ACCESSLOGS_24H || 1800; // 30 mins
     } else {
-      expirationTime = process.env.REDIS_EXPIRATION_TIME_ACCESSLOGS_DEFAULT || 3600; // 1 hr
+      expirationTime =
+        process.env.REDIS_EXPIRATION_TIME_ACCESSLOGS_DEFAULT || 3600; // 1 hr
     }
 
     await redisClient.set(
