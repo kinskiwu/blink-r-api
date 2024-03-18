@@ -116,10 +116,21 @@ export const generateAnalytics = async (
 
     const count = await getAccessCountForShortUrl(shortUrlId, timeFrame);
 
+    let expirationTime;
+    if (timeFrame === 'all' || !req.query.timeFrame) {
+      expirationTime = 604800;
+    } else if (timeFrame === '7d') {
+      expirationTime = 21600;
+    } else if (timeFrame === '24h') {
+      expirationTime = 1800;
+    } else {
+      expirationTime = 3600; // default to 1 hour
+    }
+
     await redisClient.set(
       cacheKey,
       JSON.stringify({ timeFrame, accessCount: count }),
-      { EX: 3600 }
+      { EX: expirationTime }
     );
 
     res.status(200).json({ timeFrame, accessCount: count });
