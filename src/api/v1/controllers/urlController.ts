@@ -7,6 +7,7 @@ import {
 import { AccessLogModel } from '../models/accessLogs.model';
 import { NotFoundError } from '../../utils/errors';
 import { RedisClientType } from 'redis';
+// todo: update logging + extract caching functionalities & access logs update to separate services
 /**
  * Creates a short url for a given long url and stores it in the database.
  * @param req - The request object containing body 'longUrl'.
