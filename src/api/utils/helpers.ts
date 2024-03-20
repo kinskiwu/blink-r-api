@@ -1,4 +1,3 @@
-// converts a unique ID string to a base62 encoded string
 const allowedCharacters =
   '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const base = allowedCharacters.length;
@@ -30,23 +29,29 @@ export const encodeToBase62 = (uniqueId: string): string => {
  * @returns True if valid, false otherwise.
  */
 export const isValidShortUrl = (input): boolean => {
-  if (typeof input !== 'string') return false;
+  if (typeof input !== 'string' || input.length > 7) return false;
 
   const regex = new RegExp(`^[${allowedCharacters}]+$`);
   return regex.test(input);
 };
 
 /**
- * Validates if the input string is a valid HTTP url.
- * @param input The input string to validate.
- * @returns True if the URL is valid and uses HTTP or HTTPS protocol, false otherwise.
+ * Checks whether a given input is a valid URL with HTTP or HTTPS protocol and proper structure.
+ * This function verifies the input string for proper protocol usage, hostname presence, and correct URL syntax.
+ * @param input The string to be validated as a URL.
+ * @returns boolean True if the input is a well-formed HTTP or HTTPS URL; false otherwise, including for non-string inputs or malformed URLs.
  */
 export const isValidHttpUrl = (input): boolean => {
   try {
     if (typeof input !== 'string') return false;
 
     const url = new URL(input);
-    return url.protocol === 'http:' || url.protocol === 'https:';
+    const hasValidProtocol =
+      url.protocol === 'http:' || url.protocol === 'https:';
+    const hasHostname = url.hostname !== '';
+    const hasCorrectSlashes = input.startsWith(`${url.protocol}//`);
+
+    return hasValidProtocol && hasHostname && hasCorrectSlashes;
   } catch (err) {
     return false;
   }
@@ -57,7 +62,7 @@ export const isValidHttpUrl = (input): boolean => {
  * @param timeFrame The time frame to calculate the start date for ('24h' or '7d').Default to 'all' if empty string provided.
  * @returns The calculated start date.
  */
-export const calculateStartDate = (timeFrame: string = 'all'): Date => {
+export const calculateStartDate = (timeFrame: string): Date => {
   const currentDate = new Date();
   // default handles any unexpected timeFrame values to 'all'
   switch (timeFrame) {
