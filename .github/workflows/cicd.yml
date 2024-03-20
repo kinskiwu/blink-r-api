@@ -33,6 +33,3 @@ jobs:
     steps:
       - name: Notify about deployment
         run: |
-          # Use curl or another tool to notify about the deployment
-          # Example: curl -X POST -H "Content-Type: application/json" --data '{"text":"CI/CD pipeline succeeded. Deployment started on Render."}' YOUR_WEBHOOK_URL
-          echo "Deployment to Render should start shortly. CI/CD pipeline succeeded."

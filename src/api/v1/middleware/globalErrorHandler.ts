@@ -1,27 +1,33 @@
-import { ErrorRequestHandler, Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
+import { CustomError } from '../../utils/errors';
+import { logger } from '../../utils/logger';
 
 /**
- * Global error handler function to catch and respond to errors occurring in middleware.
- * @param err - The error object or custom error passed from middleware.
- * @param req - The HTTP request object.
- * @param res - The HTTP response object used to send a JSON response with error details.
+ * Global error handler for Express that intercepts and standardizes error responses.
+ * Logs error details for internal review and returns a structured error message to the client.
+ * This handler ensures a consistent response format for all errors.
+ *
+ * @param err - Error object potentially containing `status` and `message`.
+ * @param req - Express Request object, not directly used here.
+ * @param res - Express Response object for sending the error response.
+ * @param next - Next function for passing execution to the next middleware (not used here but required for error handlers).
  */
+type ErrorHandlerError = Error | CustomError;
 
 export const globalErrorHandler = (
-  err: ErrorRequestHandler,
+  err: ErrorHandlerError | null | undefined,
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
-  // define default error structure
-  const defaultErr = {
-    log: 'Express error handler caught unknown middleware error',
-    status: 500,
-    message: { err: 'An error occurred' },
-  };
-
-  // combine default error with custom props
-  const errorObj = Object.assign({}, defaultErr, err);
-  console.log(errorObj.log);
-
-  return res.status(errorObj.status).json(errorObj.message);
+  if (err instanceof CustomError) {
+    logger.error(`${err.constructor.name}: ${err.message}`);
+    return res.status(err.status).json({ err: err.message });
+  } else if (err) {
+    logger.error(`Unexpected error: ${err.message}`);
+    return res.status(500).json({ err: 'An unexpected error occurred.' });
+  } else {
+    logger.error('Unexpected error: Error object is null or undefined');
+    return res.status(500).json({ err: 'An unexpected error occurred.' });
+  }
 };

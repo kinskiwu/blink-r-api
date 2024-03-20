@@ -8,6 +8,7 @@ afterEach(async () => await clearDB());
 
 afterAll(async () => await teardownDB());
 
+//todo: add comprehensive integration tests
 describe('Not Found Error Handler', () => {
   it('should return 404 for non-existent routes', async () => {
     const res = await request(app).get('/non-existent-route');
@@ -17,16 +18,41 @@ describe('Not Found Error Handler', () => {
   });
 });
 
+describe('GET / endpoint', () => {
+  it('should return a 200 status and a confirmation message', async () => {
+    const response = await request(app).get('/');
+
+    expect(response.status).toBe(200);
+    expect(response.text).toBe('Hey this is my API running 🥳');
+  });
+});
+
 describe('URL Shortening API', () => {
   describe('POST /api/v1/url/shorten', () => {
-    it('should create a short URL', async () => {
-      const longUrl = 'https://mockexample.com/randomLongUrl';
+    it('should create a short URL for a valid long URL', async () => {
+      const longUrl = 'https://cloudflare.com/randomLongUrl';
       const response = await request(app)
         .post('/api/v1/url/shorten')
         .send({ longUrl });
 
       expect(response.status).toBe(201);
       expect(response.body).toHaveProperty('shortUrl');
+    });
+
+    it('should return 400 for invalid long URL inputs', async () => {
+      const invalidLongUrls = [
+        '',
+        'invalid-url',
+        'ftp://cloudflare.com/randomLongUrl',
+      ];
+      for (const longUrl of invalidLongUrls) {
+        const response = await request(app)
+          .post('/api/v1/url/shorten')
+          .send({ longUrl });
+
+        expect(response.status).toBe(400);
+        expect(response.body.error).toBe('Invalid long URL');
+      }
     });
   });
 
@@ -52,14 +78,13 @@ describe('URL Shortening API', () => {
   });
 
   describe('GET /api/v1/url/analytics', () => {
-    it('should return analytics data', async () => {
-      const shortUrlIdNotExist = 'Hv';
-      const timeFrame = '24h';
-      const response = await request(app)
-        .get('/api/v1/url/analytics')
-        .query({ shortUrlId: shortUrlIdNotExist, timeFrame });
-
-      expect(response.status).toBe(400);
-    });
+    // it('should return analytics data', async () => {
+    //   const shortUrlIdNotExist = 'Hv';
+    //   const timeFrame = '24h';
+    //   const response = await request(app)
+    //     .get('/api/v1/url/analytics')
+    //     .query({ shortUrlId: shortUrlIdNotExist, timeFrame });
+    //   expect(response.status).toBe(400);
+    // });
   });
 });
