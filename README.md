@@ -1,8 +1,8 @@
-# Short URL API
+# Blink-r API
 
 ## Overview
 
-Our Short URL API makes your long links short and easy to share! It's perfect for simplifying long URLs into neat, manageable links that you can track with our easy-to-understand analytics.
+Blink-r API makes your long links short and easy to share! It's perfect for simplifying long URLs into neat, manageable links that you can track with our easy-to-understand analytics.
 
 ## Features
 
