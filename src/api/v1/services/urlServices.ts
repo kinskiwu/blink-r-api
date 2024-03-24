@@ -35,13 +35,13 @@ export const findOrCreateShortUrl = async (
 
       urlDocument = new UrlModel({
         longUrl,
-        shortUrls: [{ shortUrlId }],
+        shortUrls: [{ _id: shortUrlId }],
       });
 
       await urlDocument.save();
     } else {
       shortUrlId = generateShortUrl();
-      urlDocument.shortUrls.push({ shortUrlId });
+      urlDocument.shortUrls.push({ _id: shortUrlId });
       await urlDocument.save();
     }
 
@@ -66,7 +66,7 @@ export const findOrCreateShortUrl = async (
 export const findShortUrl = async (shortUrlId): Promise<Url> => {
   try {
     const urlDocument = await UrlModel.findOne({
-      'shortUrls.shortUrlId': { $eq: shortUrlId },
+      'shortUrls._id': { $eq: shortUrlId },
     });
 
     if (!urlDocument) {
