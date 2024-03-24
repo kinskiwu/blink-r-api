@@ -2,7 +2,7 @@ import mongoose, { Schema } from 'mongoose';
 import { Url } from '../types/DbModelTypes';
 
 const ShortUrlSchema = new Schema({
-  shortUrlId: { type: String, required: true },
+  _id: { type: String, required: true },
   createdAt: { type: Date, required: true, default: Date.now },
 });
 
