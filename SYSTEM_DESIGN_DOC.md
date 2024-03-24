@@ -111,12 +111,11 @@ This document outlines the design and architecture of the Short URL API, a syste
 ### URLs Collection
 ```javascript
 const ShortUrlSchema = new Schema({
-  shortUrlId: { type: String, required: true },
+  _id: { type: String, required: true },
   createdAt: { type: Date, required: true, default: Date.now },
 });
 
 const UrlSchema = new Schema({
-  longUrlId: { type: String, required: true },
   longUrl: { type: String, required: true },
   shortUrls: [ShortUrlSchema],
   createdAt: { type: Date, required: true, default: Date.now },

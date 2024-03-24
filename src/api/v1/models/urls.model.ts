@@ -2,13 +2,12 @@ import mongoose, { Schema } from 'mongoose';
 import { Url } from '../types/DbModelTypes';
 
 const ShortUrlSchema = new Schema({
-  shortUrlId: { type: String, required: true },
+  _id: { type: String, unique: true, required: true },
   createdAt: { type: Date, required: true, default: Date.now },
 });
 
 const UrlSchema = new Schema({
-  longUrlId: { type: String, required: true },
-  longUrl: { type: String, required: true },
+  longUrl: { type: String, unique: true, required: true, index: true },
   shortUrls: [ShortUrlSchema],
   createdAt: { type: Date, required: true, default: Date.now },
 });
