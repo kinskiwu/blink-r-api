@@ -1,7 +1,7 @@
 import { Document } from 'mongoose';
 
 export interface ShortUrl {
-  shortUrlId: string;
+  _id: string;
   createdAt?: Date;
 }
 
