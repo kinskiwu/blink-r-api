@@ -116,7 +116,6 @@ const ShortUrlSchema = new Schema({
 });
 
 const UrlSchema = new Schema({
-  longUrlId: { type: String, required: true },
   longUrl: { type: String, required: true },
   shortUrls: [ShortUrlSchema],
   createdAt: { type: Date, required: true, default: Date.now },

@@ -6,7 +6,6 @@ export interface ShortUrl {
 }
 
 export interface Url extends Document {
-  longUrlId: string;
   longUrl: string;
   shortUrls: ShortUrl[];
   createdAt?: Date;

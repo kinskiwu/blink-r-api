@@ -30,11 +30,10 @@ export const findOrCreateShortUrl = async (
     let shortUrlId;
 
     if (!urlDocument) {
-      const longUrlId = uuid();
-      shortUrlId = generateShortUrl(longUrlId);
+      const uniqueID = uuid();
+      shortUrlId = generateShortUrl(uniqueID);
 
       urlDocument = new UrlModel({
-        longUrlId,
         longUrl,
         shortUrls: [{ shortUrlId }],
       });
