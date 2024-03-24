@@ -7,7 +7,7 @@ const ShortUrlSchema = new Schema({
 });
 
 const UrlSchema = new Schema({
-  longUrl: { type: String, required: true },
+  longUrl: { type: String, unique: true, required: true, index: true },
   shortUrls: [ShortUrlSchema],
   createdAt: { type: Date, required: true, default: Date.now },
 });
