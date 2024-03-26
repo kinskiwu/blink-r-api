@@ -50,5 +50,5 @@ curl -X GET "https://blink-r-api.onrender.com/api/v1/url/analytics?shortUrlId=<s
 ```
 Example:
 ```bash
-curl -X GET "https://short-url-api-kinski.onrender.com/api/v1/url/analytics?shortUrlId=H3&timeFrame=24h"
+curl -X GET "https://blink-r-api.onrender.com/api/v1/url/analytics?shortUrlId=H3&timeFrame=24h"
 ```
