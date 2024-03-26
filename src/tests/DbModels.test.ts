@@ -24,15 +24,13 @@ describe('AccessLog Model Test', () => {
 describe('UrlModel Tests', () => {
   it('should create and save UrlModel successfully', async () => {
     const urlData = {
-      longUrlId: '123',
       longUrl: 'https://cloudflare.com',
-      shortUrls: [{ shortUrlId: 'abc123', createdAt: new Date() }],
+      shortUrls: [{ _id: 'abc123', createdAt: new Date() }],
     };
     const validUrl = new UrlModel(urlData);
     const savedUrl = await validUrl.save();
 
     expect(savedUrl._id).toBeDefined();
-    expect(savedUrl.longUrlId).toBe(urlData.longUrlId);
     expect(savedUrl.longUrl).toBe(urlData.longUrl);
     expect(savedUrl.shortUrls.length).toBe(1);
   });
