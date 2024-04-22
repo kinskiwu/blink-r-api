@@ -2,9 +2,9 @@ name: Node.js CI/CD
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
   pull_request:
-    branches: [main]
+    branches: [main, dev]
 
 jobs:
   build:
@@ -30,6 +30,3 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-    steps:
-      - name: Notify about deployment
-        run: |

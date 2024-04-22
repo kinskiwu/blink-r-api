@@ -1,0 +1,38 @@
+name: Jest Unit Tests
+
+on:
+  pull_request:
+    branches:[main, dev]
+
+jobs:
+  jest-test:
+    runs-on: ubuntu-latest
+    environment: Testing
+    strategy:
+      matrix:
+        node-version: ['16.x', '18.x', '20.x']
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'yarn'
+
+    - name: Install dependencies
+      run: yarn test
+
+    - name: Run Jest Tests
+      run: yarn test
+      env:
+        CI: true
+
+    - name: Upload Test Coverage Results
+      uses: actions/upload-artifact@v2
+      if: always()
+      with:
+        name: test-coverage-report
+        path: coverage/lcov-report
