@@ -2,9 +2,9 @@ name: Node.js CI/CD
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
   pull_request:
-    branches: [main]
+    branches: [main, dev]
 
 jobs:
   build:
@@ -23,5 +23,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
 
-      - run: yarn install
-      - run: yarn test
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Run tests
+        run: yarn test
