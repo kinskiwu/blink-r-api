@@ -71,7 +71,7 @@ This document outlines the design and architecture of the Short URL API, a syste
 
 - **Type**: RESTful
 - **Endpoints**:
-  - **URL Router** `/api/v1/url`
+  - **URL Router** `/api/v1/urls`
     - **Shorten URL** `POST /shorten`
       - **Request Body:**
         ```json

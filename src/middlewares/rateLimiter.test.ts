@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import request from 'supertest';
-import { rateLimitMiddleware } from './rateLimitHandler';
+import { rateLimitMiddleware } from './rateLimiter';
 
 const app = express();
 const agent = request(app);

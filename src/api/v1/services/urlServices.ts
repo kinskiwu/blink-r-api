@@ -1,9 +1,13 @@
 import { v4 as uuid } from 'uuid';
 import { calculateStartDate, encodeToBase62 } from '../../utils/helpers';
 import { UrlModel } from '../models/urls.model';
-import { CustomError, DatabaseError, NotFoundError } from '../../utils/errors';
 import { AccessLogModel } from '../models/accessLogs.model';
 import { Url } from '../types/DbModelTypes';
+import {
+  CustomError,
+  DatabaseError,
+  NotFoundError,
+} from '../../../config/errors';
 
 /**
  * Generates a short URL identifier.

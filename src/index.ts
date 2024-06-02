@@ -1,11 +1,11 @@
 import express, { Express, Request, Response } from 'express';
 import urlRouter from './api/v1/routes/urlRouter';
-import { globalErrorHandler } from './api/v1/middleware/globalErrorHandler';
 import helmet from 'helmet';
-import { rateLimitMiddleware } from './api/v1/middleware/rateLimitHandler';
 import compression from 'compression';
 import cors from 'cors';
-import { morganMiddleware } from './api/middlewares/morgan';
+import { morganMiddleware } from './middlewares/morgan';
+import { rateLimitMiddleware } from './middlewares/rateLimiter';
+import { globalErrorHandler } from './middlewares/globalErrorHandler';
 
 const app: Express = express();
 
