@@ -30,7 +30,7 @@ app.get('/', (req, res) => {
 });
 
 // routing middle ware for url related endpoint
-app.use('/api/v1/url', urlRouter);
+app.use('/api/v1/urls', urlRouter);
 
 // middleware for 404 error handling
 app.use((req: Request, res: Response) => {
