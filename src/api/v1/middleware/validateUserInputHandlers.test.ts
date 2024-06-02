@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import * as helpers from '../../utils/helpers';
+import * as helpers from '../../../utils/helpers';
 import {
   validateLongUrlInput,
   validateShortUrlInput,
 } from './validateUserInputHandlers';
 
-jest.mock('../../utils/helpers', () => ({
+jest.mock('../../../utils/helpers', () => ({
   isValidHttpUrl: jest.fn(),
   isValidShortUrl: jest.fn(),
 }));
