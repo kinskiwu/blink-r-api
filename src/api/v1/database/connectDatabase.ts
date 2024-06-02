@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import 'dotenv/config';
-import { logger } from '../../utils/logger';
+import { logger } from '../../../utils/logger';
 
 const mongoDBUrl = process.env.MONGODB_URL;
 if (!mongoDBUrl) {

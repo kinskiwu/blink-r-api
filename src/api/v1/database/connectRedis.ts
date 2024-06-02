@@ -1,6 +1,6 @@
 import { createClient } from 'redis';
 import 'dotenv/config';
-import { logger } from '../../utils/logger';
+import { logger } from '../../../utils/logger';
 
 /**
  * Initializes and connects a Redis client using environment variables.

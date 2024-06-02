@@ -7,12 +7,12 @@ import {
   generateShortUrl,
   getAccessCountForShortUrl,
 } from './urlServices';
-import { encodeToBase62 } from '../../utils/helpers';
+import { encodeToBase62 } from '../../../utils/helpers';
 import { DatabaseError, NotFoundError } from '../../../config/errors';
 
 jest.mock('../models/urls.model');
 jest.mock('../models/accessLogs.model');
-jest.mock('../../utils/helpers');
+jest.mock('../../../utils/helpers');
 
 describe('URL Functions Tests', () => {
   afterEach(() => {
