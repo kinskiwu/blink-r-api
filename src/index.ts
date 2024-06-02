@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import { rateLimitMiddleware } from './api/v1/middleware/rateLimitHandler';
 import compression from 'compression';
 import cors from 'cors';
+import { morganMiddleware } from './api/middlewares/morgan';
 
 const app: Express = express();
 
@@ -28,6 +29,9 @@ app.use(compression());
 app.get('/', (req, res) => {
   res.send('Hey this is my API running 🥳');
 });
+
+// Apply Morgan middleware to urlRouter
+urlRouter.use(morganMiddleware);
 
 // routing middle ware for url related endpoint
 app.use('/api/v1/urls', urlRouter);
