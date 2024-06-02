@@ -6,7 +6,7 @@ import {
 } from '../services/urlServices';
 import { AccessLogModel } from '../models/accessLogs.model';
 import { RedisClientType } from 'redis';
-import { logger } from '../../config/winston';
+import { logger } from '../../../config/winston';
 
 /**
  * Creates a short url for a given long url and stores it in the database.
