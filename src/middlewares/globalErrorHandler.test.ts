@@ -57,7 +57,7 @@ describe('globalErrorHandler', () => {
   it('should handle errors thrown as plain objects', () => {
     const err = { someProperty: 'This is an object thrown as an error' };
     globalErrorHandler(
-      err as any,
+      err as unknown as Error,
       mockRequest as Request,
       mockResponse as Response
     );
@@ -78,7 +78,7 @@ describe('globalErrorHandler', () => {
 
   it('should properly handle a null error', () => {
     globalErrorHandler(
-      null as any,
+      null as unknown as Error,
       mockRequest as Request,
       mockResponse as Response
     );
@@ -90,7 +90,7 @@ describe('globalErrorHandler', () => {
 
   it('should properly handle an undefined error', () => {
     globalErrorHandler(
-      undefined as any,
+      undefined as unknown as Error,
       mockRequest as Request,
       mockResponse as Response
     );
