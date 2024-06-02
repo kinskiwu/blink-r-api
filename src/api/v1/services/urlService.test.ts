@@ -1,12 +1,7 @@
 import { UrlModel } from '../models/urls.model';
 import { AccessLogModel } from '../models/accessLogs.model';
 
-import {
-  findOrCreateShortUrl,
-  findShortUrl,
-  generateShortUrl,
-  getAccessCountForShortUrl,
-} from './urlServices';
+import UrlService from './urlService';
 import { encodeToBase62 } from '../../../utils/helpers';
 import { DatabaseError, NotFoundError } from '../../../config/errors';
 
@@ -26,7 +21,7 @@ describe('URL Functions Tests', () => {
 
       (encodeToBase62 as jest.Mock).mockReturnValue(encodedValue);
 
-      const shortUrl = generateShortUrl(customUniqueId);
+      const shortUrl = UrlService.generateShortUrl(customUniqueId);
 
       expect(shortUrl).toBe(encodedValue);
       expect(encodeToBase62).toHaveBeenCalledWith(customUniqueId);
@@ -36,7 +31,7 @@ describe('URL Functions Tests', () => {
       const encodedValue = 'encodedValue';
       (encodeToBase62 as jest.Mock).mockReturnValue(encodedValue);
 
-      const shortUrl = generateShortUrl();
+      const shortUrl = UrlService.generateShortUrl();
 
       expect(shortUrl).toBe(encodedValue);
       expect(encodeToBase62).toHaveBeenCalled();
@@ -48,7 +43,7 @@ describe('URL Functions Tests', () => {
       const longUrl = 'http://cloudflare.com';
       (UrlModel.findOne as jest.Mock).mockResolvedValue(null);
       (UrlModel.prototype.save as jest.Mock).mockResolvedValue({});
-      const shortUrl = await findOrCreateShortUrl(longUrl);
+      const shortUrl = await UrlService.findOrCreateShortUrl(longUrl);
       expect(shortUrl).toBeDefined();
     });
 
@@ -57,7 +52,7 @@ describe('URL Functions Tests', () => {
       (UrlModel.findOne as jest.Mock).mockRejectedValue(
         new Error('Database error')
       );
-      await expect(findOrCreateShortUrl(longUrl)).rejects.toThrow(
+      await expect(UrlService.findOrCreateShortUrl(longUrl)).rejects.toThrow(
         DatabaseError
       );
     });
@@ -69,14 +64,16 @@ describe('URL Functions Tests', () => {
       (UrlModel.findOne as jest.Mock).mockResolvedValue({
         longUrl: 'http://cloudflare.com',
       });
-      const urlDocument = await findShortUrl(shortUrlId);
+      const urlDocument = await UrlService.findShortUrl(shortUrlId);
       expect(urlDocument).toBeDefined();
     });
 
     it('should throw a NotFoundError if URL document is not found', async () => {
       const shortUrlId = 'nonexistentShortUrlId';
       (UrlModel.findOne as jest.Mock).mockResolvedValue(null);
-      await expect(findShortUrl(shortUrlId)).rejects.toThrow(NotFoundError);
+      await expect(UrlService.findShortUrl(shortUrlId)).rejects.toThrow(
+        NotFoundError
+      );
     });
 
     it('should throw a DatabaseError if database operation fails', async () => {
@@ -84,7 +81,9 @@ describe('URL Functions Tests', () => {
       (UrlModel.findOne as jest.Mock).mockRejectedValue(
         new Error('Database error')
       );
-      await expect(findShortUrl(shortUrlId)).rejects.toThrow(DatabaseError);
+      await expect(UrlService.findShortUrl(shortUrlId)).rejects.toThrow(
+        DatabaseError
+      );
     });
   });
 
@@ -96,7 +95,10 @@ describe('URL Functions Tests', () => {
       (AccessLogModel.aggregate as jest.Mock).mockResolvedValue([
         { accessCount },
       ]);
-      const count = await getAccessCountForShortUrl(shortUrlId, timeFrame);
+      const count = await UrlService.getAccessCountForShortUrl(
+        shortUrlId,
+        timeFrame
+      );
       expect(count).toBe(accessCount);
     });
 
@@ -104,7 +106,10 @@ describe('URL Functions Tests', () => {
       const shortUrlId = 'validShortUrlId';
       const timeFrame = '24h';
       (AccessLogModel.aggregate as jest.Mock).mockResolvedValue([]);
-      const count = await getAccessCountForShortUrl(shortUrlId, timeFrame);
+      const count = await UrlService.getAccessCountForShortUrl(
+        shortUrlId,
+        timeFrame
+      );
       expect(count).toBe(0);
     });
 
@@ -115,7 +120,7 @@ describe('URL Functions Tests', () => {
         new Error('Database error')
       );
       await expect(
-        getAccessCountForShortUrl(shortUrlId, timeFrame)
+        UrlService.getAccessCountForShortUrl(shortUrlId, timeFrame)
       ).rejects.toThrow(DatabaseError);
     });
   });

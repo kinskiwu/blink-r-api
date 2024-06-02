@@ -1,9 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import {
-  findOrCreateShortUrl,
-  findShortUrl,
-  getAccessCountForShortUrl,
-} from '../services/urlServices';
+import { UrlService } from '../services/urlService';
 import { AccessLogModel } from '../models/accessLogs.model';
 import { RedisClientType } from 'redis';
 import { logger } from '../../../config/winston';

@@ -3,7 +3,7 @@ import {
   findOrCreateShortUrl,
   findShortUrl,
   getAccessCountForShortUrl,
-} from '../services/urlServices';
+} from '../services/urlService';
 import {
   createShortUrl,
   generateAnalytics,
@@ -69,8 +69,9 @@ describe('URL Controller Tests', () => {
     });
     it('should call next with an error when findOrCreateShortUrl service fails', async () => {
       const error = new Error('Service Error');
-      mockReq.body = { longUrl: 'http://cloudflare.com' };
-      (findOrCreateShortUrl as jest.Mock).mockRejectedValue(error);
+      mockReq.body = { longUrl: 'http://cloudflare.com' }(
+        findOrCreateShortUrl as jest.Mock
+      ).mockRejectedValue(error);
 
       await createShortUrl(
         mockReq as Request,
@@ -102,8 +103,9 @@ describe('URL Controller Tests', () => {
     });
 
     it('should handle when no cache or database entry exists', async () => {
-      mockReq.params = { shortUrlId: 'nonexistent' };
-      (mockRedisClient.get as jest.Mock).mockResolvedValue(null);
+      mockReq.params = { shortUrlId: 'nonexistent' }(
+        mockRedisClient.get as jest.Mock
+      ).mockResolvedValue(null);
       (findShortUrl as jest.Mock).mockRejectedValue(new Error('Not found'));
 
       await redirectToLongUrl(
@@ -204,8 +206,9 @@ describe('URL Controller Tests', () => {
     });
 
     it('should return a 404 error if the short URL is not found', async () => {
-      mockReq.query = { shortUrlId: 'nonexistent', timeFrame: '24h' };
-      (mockRedisClient.get as jest.Mock).mockResolvedValue(null);
+      mockReq.query = { shortUrlId: 'nonexistent', timeFrame: '24h' }(
+        mockRedisClient.get as jest.Mock
+      ).mockResolvedValue(null);
       (findShortUrl as jest.Mock).mockRejectedValue(new Error('Not found'));
 
       await generateAnalytics(
@@ -219,8 +222,9 @@ describe('URL Controller Tests', () => {
     });
 
     it('should handle when no analytics data is available', async () => {
-      mockReq.query = { shortUrlId: 'validShortId', timeFrame: '24h' };
-      (mockRedisClient.get as jest.Mock).mockResolvedValue(null);
+      mockReq.query = { shortUrlId: 'validShortId', timeFrame: '24h' }(
+        mockRedisClient.get as jest.Mock
+      ).mockResolvedValue(null);
       (findShortUrl as jest.Mock).mockResolvedValue(true);
       (getAccessCountForShortUrl as jest.Mock).mockResolvedValue(0);
 
