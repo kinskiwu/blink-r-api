@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { AccessLog } from '../types/DbModelTypes';
+import { AccessLog } from '../types/dbModelTypes';
 
 const AccessLogSchema = new Schema(
   {
