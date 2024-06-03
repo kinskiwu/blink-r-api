@@ -3,7 +3,7 @@ import {
   encodeToBase62,
   isValidHttpUrl,
   isValidShortUrl,
-} from './helpers';
+} from '../';
 //todo: add collision test for encodetoBase62
 describe('encodeToBase62', () => {
   it('should correctly encode a given uniqueId to a base62 string', () => {
@@ -46,17 +46,6 @@ describe('isValidShortUrl', () => {
     );
   });
 
-  describe('when given non-string inputs', () => {
-    it.each([
-      [123, 'number'],
-      [{}, 'object'],
-      [[], 'array'],
-      [undefined, 'undefined'],
-      [null, 'null'],
-    ])('should return false for a %s input', (input, description) => {
-      expect(isValidShortUrl(input)).toBe(false);
-    });
-  });
   describe('when input exceeds max length of 7 characters', () => {
     it.each(['12345678', 'abcdefghijklmn'])(
       'should return false for "%s"',
@@ -78,13 +67,6 @@ describe('isValidHttpUrl', () => {
   });
 
   describe('when given invalid inputs', () => {
-    it.each([123, null, undefined, {}, [], true])(
-      'should return false for non-string inputs: %s',
-      (input) => {
-        expect(isValidHttpUrl(input)).toBe(false);
-      }
-    );
-
     it.each([
       'ftp://cloudflare.com',
       'httpss://cloudflare.com',

@@ -4,12 +4,19 @@ import { allowedCharacters } from '../';
 export const shortUrlSchema = z
   .string()
   .max(7)
-  .regex(new RegExp(`^[${allowedCharacters}]+$`));
+  .refine((url) => {
+    const regex = new RegExp(`^[${allowedCharacters}]+$`);
+    return regex.test(url);
+  }, 'Invalid characters in short URL');
 
 export const urlSchema = z
   .string()
   .url()
   .refine((url) => {
     const parsedUrl = new URL(url);
-    return parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:';
-  });
+    const hasValidProtocol =
+      parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:';
+    const hasHostname = parsedUrl.hostname !== '';
+    const hasCorrectSlashes = url.startsWith(`${parsedUrl.protocol}//`);
+    return hasValidProtocol && hasHostname && hasCorrectSlashes;
+  }, 'Invalid URL format or protocol');
