@@ -1,6 +1,6 @@
 import { UrlModel } from '../models/urls.model';
 import { AccessLogModel } from '../models/accessLogs.model';
-import { encodeToBase62 } from '../../../utils/helpers';
+import { encodeToBase62 } from '../../../utils';
 import { DatabaseError, NotFoundError } from '../../../config/errors';
 import UrlService from './urlService';
 import DatabaseService from './databaseService';

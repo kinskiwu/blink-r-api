@@ -1,7 +1,5 @@
 import { z } from 'zod';
-
-const allowedCharacters =
-  '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+import { allowedCharacters } from '../';
 
 export const shortUrlSchema = z
   .string()

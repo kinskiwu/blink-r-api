@@ -1,4 +1,4 @@
-import { shortUrlSchema, urlSchema } from '../schemas/urlSchemas';
+import { shortUrlSchema, urlSchema } from '../';
 
 /**
  * Validates if the input string is a valid short url id consisting of allowed characters.
