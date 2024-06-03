@@ -1,14 +1,25 @@
 import request from 'supertest';
 import app from '../';
 import { setupDB, teardownDB, clearDB } from './jest_mongodb_setup';
+import CacheService from '../api/v1/services/cacheService';
 
-beforeAll(async () => await setupDB());
+let cacheService: CacheService;
 
-afterEach(async () => await clearDB());
+beforeAll(async () => {
+  await setupDB();
+  cacheService = new CacheService();
+});
 
-afterAll(async () => await teardownDB());
+afterEach(async () => {
+  await clearDB();
+});
 
-describe.skip('Not Found Error Handler', () => {
+afterAll(async () => {
+  await cacheService.disconnect();
+  await teardownDB();
+});
+
+describe('Not Found Error Handler', () => {
   it('should return 404 for non-existent routes', async () => {
     const res = await request(app).get('/non-existent-route');
 
@@ -17,7 +28,7 @@ describe.skip('Not Found Error Handler', () => {
   });
 });
 
-describe.skip('GET / endpoint', () => {
+describe('GET / endpoint', () => {
   it('should return a 200 status and a confirmation message', async () => {
     const response = await request(app).get('/');
 

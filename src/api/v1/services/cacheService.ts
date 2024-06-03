@@ -46,4 +46,13 @@ export default class CacheService {
       throw error;
     }
   }
+
+  public async disconnect(): Promise<void> {
+    try {
+      await this.client.disconnect();
+    } catch (error) {
+      logger.error(`Error disconnecting from cache: ${error}`);
+      throw error;
+    }
+  }
 }
