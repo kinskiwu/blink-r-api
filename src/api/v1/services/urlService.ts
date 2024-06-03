@@ -1,20 +1,28 @@
 import { v4 as uuid } from 'uuid';
 import { calculateStartDate, encodeToBase62 } from '../../../utils/helpers';
-import { UrlModel } from '../models/urls.model';
-import { AccessLogModel } from '../models/accessLogs.model';
-import { Url } from '../types/DbModelTypes';
+import { AccessLog, Url } from '../types/DbModelTypes';
 import {
   CustomError,
   DatabaseError,
   NotFoundError,
 } from '../../../config/errors';
 import { logger } from '../../../config/winston';
+import DatabaseService from './databaseService';
+import { UrlModel } from '../models/urls.model';
+import { AccessLogModel } from '../models/accessLogs.model';
+
+interface AccessCountResult {
+  count: number;
+}
 
 export default class UrlService {
-  constructor(
-    private readonly urlModel = UrlModel,
-    private readonly accessLogModel = AccessLogModel,
-  ) {}
+  private readonly urlDatabaseService: DatabaseService<Url>;
+  private readonly accessLogDatabaseService: DatabaseService<AccessLog>;
+
+  constructor() {
+    this.urlDatabaseService = new DatabaseService(UrlModel);
+    this.accessLogDatabaseService = new DatabaseService(AccessLogModel);
+  }
 
   /**
    * Generates a short URL identifier using a UUID and encodes it to Base62.
@@ -32,7 +40,9 @@ export default class UrlService {
    */
   public async findOrCreateShortUrl(originalLongUrl: string): Promise<string> {
     try {
-      const existingUrlDocument = await this.findUrlByLongUrl(originalLongUrl);
+      const existingUrlDocument = await this.urlDatabaseService.findOne({
+        longUrl: originalLongUrl,
+      });
 
       if (!existingUrlDocument) {
         return this.createAndSaveNewUrl(originalLongUrl);
@@ -53,7 +63,7 @@ export default class UrlService {
    */
   public async findShortUrl(shortUrlId: string): Promise<Url> {
     try {
-      const foundUrlDocument = await this.urlModel.findOne({
+      const foundUrlDocument = await this.urlDatabaseService.findOne({
         'shortUrls._id': { $eq: shortUrlId },
       });
 
@@ -80,31 +90,48 @@ export default class UrlService {
     try {
       const startDate = calculateStartDate(timeFrame);
 
-      const accessCountResult = await this.accessLogModel.aggregate([
-        {
-          $match: {
-            shortUrlId,
-            accessTime: { $gte: startDate },
+      const accessCountResult: AccessCountResult[] =
+        await this.accessLogDatabaseService.aggregate([
+          {
+            $match: {
+              shortUrlId,
+              accessTime: { $gte: startDate },
+            },
           },
-        },
-        {
-          $count: 'accessCount',
-        },
-      ]);
+          {
+            $count: 'count',
+          },
+        ]);
 
-      return accessCountResult.length > 0
-        ? accessCountResult[0].accessCount
-        : 0;
+      if (
+        !accessCountResult ||
+        accessCountResult.length === 0 ||
+        !accessCountResult[0]
+      ) {
+        return 0;
+      }
+
+      return accessCountResult[0].count;
     } catch (error) {
       this.handleServiceError(error as Error);
     }
   }
 
+  /**
+   * Logs access to a short URL.
+   * @param shortUrlId - The unique identifier of the short URL.
+   */
   public async logAccess(shortUrlId: string): Promise<void> {
-    const accessLogDocument = new this.accessLogModel({
-      shortUrlId,
-    });
-    await accessLogDocument.save();
+    try {
+      const accessLogDocument = this.accessLogDatabaseService.create({
+        shortUrlId,
+        accessTime: new Date(),
+      } as AccessLog);
+      await this.accessLogDatabaseService.save(accessLogDocument);
+      logger.info(`Access logged for shortUrlId: ${shortUrlId}`);
+    } catch (error) {
+      this.handleServiceError(error as Error);
+    }
   }
 
   /**
@@ -113,7 +140,7 @@ export default class UrlService {
    * @returns A promise that resolves to the URL document, if found.
    */
   private async findUrlByLongUrl(longUrl: string): Promise<Url | null> {
-    return this.urlModel.findOne({ longUrl: { $eq: longUrl } });
+    return this.urlDatabaseService.findOne({ longUrl: { $eq: longUrl } });
   }
 
   /**
@@ -123,12 +150,12 @@ export default class UrlService {
    */
   private async createAndSaveNewUrl(originalLongUrl: string): Promise<string> {
     const newShortUrlId = this.encodeShortUrl();
-    const newUrlDocument = new this.urlModel({
+    const newUrlDocument = this.urlDatabaseService.create({
       longUrl: originalLongUrl,
       shortUrls: [{ _id: newShortUrlId }],
-    });
+    } as Url);
 
-    await newUrlDocument.save();
+    await this.urlDatabaseService.save(newUrlDocument);
     return newShortUrlId;
   }
 
@@ -142,7 +169,7 @@ export default class UrlService {
     newShortUrlId: string
   ): Promise<void> {
     existingUrlDocument.shortUrls.push({ _id: newShortUrlId });
-    await existingUrlDocument.save();
+    await this.urlDatabaseService.save(existingUrlDocument);
   }
 
   /**
