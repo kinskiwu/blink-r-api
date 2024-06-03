@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import type { Url } from '../types/dbModelTypes';
+import type { Url } from '../types/DBModelTypes';
 
 const ShortUrlSchema = new Schema({
   _id: { type: String, unique: true, required: true },
