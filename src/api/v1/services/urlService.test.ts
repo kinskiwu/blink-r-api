@@ -7,7 +7,7 @@ import DatabaseService from './databaseService';
 
 jest.mock('../models/urls.model');
 jest.mock('../models/accessLogs.model');
-jest.mock('../../../utils/helpers');
+jest.mock('../../../utils');
 
 describe.skip('URL Functions Tests', () => {
   let urlServiceInstance: UrlService;
