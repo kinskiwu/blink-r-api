@@ -1,8 +1,8 @@
 import app from './';
 import 'dotenv/config';
-import { connectDatabase } from './config/connectDatabase';
+import { connectDatabase } from './config/database';
 import mongoose from 'mongoose';
-import { connectRedis } from './config/connectRedis';
+import { connectRedis } from './config/redis';
 import { logger } from './config/winston';
 
 const PORT = process.env.PORT || 4000;

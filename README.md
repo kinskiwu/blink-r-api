@@ -26,29 +26,29 @@ Make sure to replace placeholders like `<full-long-url>`, `<short-url-id>`, and 
 ### Shorten URL
 To shorten a long URL, use the following command:
 ```bash
-curl -X POST https://blink-r-api.onrender.com/api/v1/url/shorten -H "Content-Type: application/json" -d '{"longUrl": <full-long-url>}'
+curl -X POST https://short-url-api-kinski.onrender.com/api/v1/urls/shorten -H "Content-Type: application/json" -d '{"longUrl": <full-long-url>}'
 ```
 Example:
 ```bash
-curl -X POST https://blink-r-api.onrender.com/api/v1/url/shorten -H "Content-Type: application/json" -d '{"longUrl": "https://www.google.com"}'
+curl -X POST https://short-url-api-kinski.onrender.com/api/v1/urls/shorten -H "Content-Type: application/json" -d '{"longUrl": "https://www.google.com"}'
 ```
 
 ### Redirect URL
 To redirect to the original URL using a short URL ID, use the following command:
 ```bash
-curl -L -i https://blink-r-api.onrender.com/api/v1/url/<short-url-id>
+curl -L -i https://short-url-api-kinski.onrender.com/api/v1/urls/<short-url-id>
 ```
 Example:
 ```bash
-curl -L -i https://blink-r-api.onrender.com/api/v1/url/H3
+curl -L -i https://short-url-api-kinski.onrender.com/api/v1/urls/H3
 ```
 
 ### URL Analytics
 To retrieve analytics for a short URL, specify the short URL ID and the timeframe for the analytics:
 ```bash
-curl -X GET "https://blink-r-api.onrender.com/api/v1/url/analytics?shortUrlId=<short-url-id>&timeFrame=<time-frame>"
+curl -X GET "https://short-url-api-kinski.onrender.com/api/v1/urls/analytics?shortUrlId=<short-url-id>&timeFrame=<time-frame>"
 ```
 Example:
 ```bash
-curl -X GET "https://blink-r-api.onrender.com/api/v1/url/analytics?shortUrlId=H3&timeFrame=24h"
+curl -X GET "https://short-url-api-kinski.onrender.com/api/v1/urls/analytics?shortUrlId=H3&timeFrame=24h"
 ```

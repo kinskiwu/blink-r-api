@@ -1,6 +1,6 @@
 import { AccessLogModel } from '../api/v1/models/accessLogs.model';
 import { UrlModel } from '../api/v1/models/urls.model';
-import { setupDB, teardownDB, clearDB } from './jest_mongodb_setup';
+import { setupDB, teardownDB, clearDB } from './jestDbSetup';
 
 beforeAll(async () => await setupDB());
 

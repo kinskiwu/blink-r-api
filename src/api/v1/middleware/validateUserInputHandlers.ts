@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { isValidHttpUrl, isValidShortUrl } from '../../../utils/helpers';
+import { isValidHttpUrl, isValidShortUrl } from '../../../utils';
 
 /**
  * Middleware to validate the input for a long url.
