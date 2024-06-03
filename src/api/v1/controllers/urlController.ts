@@ -10,7 +10,7 @@ const DEFAULT_CACHE_EXPIRATION = parseInt(
 ); // 1 week
 const HTTP_STATUS_MOVED_PERMANENTLY = 301;
 
-export default class UrlController {
+class UrlController {
   constructor(
     private readonly urlService: UrlService,
     private readonly cacheService: CacheService
@@ -149,3 +149,13 @@ export default class UrlController {
     }
   }
 }
+
+// Initialize services
+const urlService = new UrlService();
+const cacheService = new CacheService();
+
+// Initialize controller
+const urlController = new UrlController(urlService, cacheService);
+
+export const { createShortUrl, redirectToLongUrl, generateAnalytics } =
+  urlController;
