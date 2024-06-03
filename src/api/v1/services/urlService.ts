@@ -14,7 +14,6 @@ export default class UrlService {
   constructor(
     private readonly urlModel = UrlModel,
     private readonly accessLogModel = AccessLogModel,
-    private readonly logger = logger
   ) {}
 
   /**
@@ -152,7 +151,7 @@ export default class UrlService {
    * @throws CustomError - A custom error based on the provided error.
    */
   private handleServiceError(serviceError: Error): never {
-    this.logger.error(serviceError);
+    logger.error(serviceError);
     if (serviceError instanceof CustomError) {
       throw serviceError;
     } else {
