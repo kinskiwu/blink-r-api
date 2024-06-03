@@ -6,7 +6,7 @@ module.exports = {
   testEnvironment: 'node',
   moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: '<rootDir>/' }),
   roots: ['<rootDir>/src', '<rootDir>/tests'],
-  globalSetup: './<rootDir>/jest_mongodb_setup.ts/setupDB',
-  globalTeardown: './<rootDir>/jest_mongodb_setup.ts/teardownDB',
-  setupFilesAfterEnv: ['./<rootDir>/jest_mongodb_setup.ts/clearDB'],
+  globalSetup: './<rootDir>/jestDbSetup.ts/setupDB',
+  globalTeardown: './<rootDir>/jestDbSetup.ts/teardownDB',
+  setupFilesAfterEnv: ['./<rootDir>/jestDbSetup.ts/clearDB'],
 };

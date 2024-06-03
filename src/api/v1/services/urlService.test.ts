@@ -1,13 +1,13 @@
 import { UrlModel } from '../models/urls.model';
 import { AccessLogModel } from '../models/accessLogs.model';
-import { encodeToBase62 } from '../../../utils/helpers';
+import { encodeToBase62 } from '../../../utils';
 import { DatabaseError, NotFoundError } from '../../../config/errors';
 import UrlService from './urlService';
 import DatabaseService from './databaseService';
 
 jest.mock('../models/urls.model');
 jest.mock('../models/accessLogs.model');
-jest.mock('../../../utils/helpers');
+jest.mock('../../../utils');
 
 describe.skip('URL Functions Tests', () => {
   let urlServiceInstance: UrlService;
