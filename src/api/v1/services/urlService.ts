@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 import { calculateStartDate, encodeToBase62 } from '../../../utils';
-import { AccessLog, Url } from '../types/dbModelTypes';
+
 import {
   CustomError,
   DatabaseError,
@@ -8,6 +8,7 @@ import {
 } from '../../../config/errors';
 import { logger } from '../../../config/winston';
 import DatabaseService from './databaseService';
+import type { AccessLog, Url } from '../types/dbModelTypes';
 
 interface AccessCountResult {
   count: number;

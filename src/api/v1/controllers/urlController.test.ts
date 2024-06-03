@@ -5,7 +5,7 @@ import {
   generateAnalytics,
   redirectToLongUrl,
 } from './urlController';
-import { RedisClientType } from 'redis';
+import type { RedisClientType } from 'redis';
 
 // Mock external modules
 jest.mock('../services/urlService');
