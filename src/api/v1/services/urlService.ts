@@ -93,10 +93,19 @@ export default class UrlService {
         },
       ]);
 
-      return accessCountResult.length > 0 ? accessCountResult[0].accessCount : 0;
+      return accessCountResult.length > 0
+        ? accessCountResult[0].accessCount
+        : 0;
     } catch (error) {
       this.handleServiceError(error as Error);
     }
+  }
+
+  public async logAccess(shortUrlId: string): Promise<void> {
+    const accessLogDocument = new this.accessLogModel({
+      shortUrlId,
+    });
+    await accessLogDocument.save();
   }
 
   /**
