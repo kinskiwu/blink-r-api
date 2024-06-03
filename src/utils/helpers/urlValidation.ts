@@ -22,7 +22,6 @@ export const isValidShortUrl = (input: string): boolean => {
 export const isValidHttpUrl = (input: string): boolean => {
   try {
     urlSchema.parse(input);
-    console.log('urlSchema', urlSchema.parse(input));
     return true;
   } catch (error) {
     return false;

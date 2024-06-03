@@ -1,6 +1,6 @@
 import request from 'supertest';
 import app from '../';
-import { setupDB, teardownDB, clearDB } from './jest_mongodb_setup';
+import { setupDB, teardownDB, clearDB } from './jestDbSetup';
 import CacheService from '../api/v1/services/cacheService';
 
 let cacheService: CacheService;
