@@ -6,22 +6,14 @@ import { logger } from './winston';
  * Initializes and connects a Redis client using environment variables.
  */
 export const connectRedis = async () => {
-  if (
-    !process.env.REDIS_PASSWORD ||
-    !process.env.REDIS_HOST ||
-    !process.env.REDIS_PORT
-  ) {
+  if (!process.env.REDIS_URL) {
     throw new Error(
       'Missing required environment variables for Redis connection'
     );
   }
 
   const redisClient = createClient({
-    password: process.env.REDIS_PASSWORD,
-    socket: {
-      host: process.env.REDIS_HOST,
-      port: Number(process.env.REDIS_PORT),
-    },
+    url: process.env.REDIS_URL,
   });
 
   redisClient.on('error', (err) => logger.info('Redis Client Error', err));
