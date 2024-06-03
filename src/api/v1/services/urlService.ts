@@ -8,7 +8,7 @@ import {
 } from '../../../config/errors';
 import { logger } from '../../../config/winston';
 import DatabaseService from './databaseService';
-import type { AccessLog, Url } from '../types/DBModelTypes';
+import type { AccessLog, Url } from '../types/dbModelTypes';
 
 interface AccessCountResult {
   count: number;
