@@ -1,10 +1,11 @@
 import express, { Express, Request, Response } from 'express';
 import urlRouter from './api/v1/routes/urlRouter';
-import { globalErrorHandler } from './api/v1/middleware/globalErrorHandler';
 import helmet from 'helmet';
-import { rateLimitMiddleware } from './api/v1/middleware/rateLimitHandler';
 import compression from 'compression';
 import cors from 'cors';
+import { morganMiddleware } from './middlewares/morgan';
+import { rateLimitMiddleware } from './middlewares/rateLimiter';
+import { globalErrorHandler } from './middlewares/globalErrorHandler';
 
 const app: Express = express();
 
@@ -29,8 +30,11 @@ app.get('/', (req, res) => {
   res.send('Hey this is my API running 🥳');
 });
 
+// Apply Morgan middleware to urlRouter
+urlRouter.use(morganMiddleware);
+
 // routing middle ware for url related endpoint
-app.use('/api/v1/url', urlRouter);
+app.use('/api/v1/urls', urlRouter);
 
 // middleware for 404 error handling
 app.use((req: Request, res: Response) => {

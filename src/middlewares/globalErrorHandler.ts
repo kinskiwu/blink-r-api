@@ -1,6 +1,6 @@
-import { NextFunction, Request, Response } from 'express';
-import { CustomError } from '../../utils/errors';
-import { logger } from '../../utils/logger';
+import { Request, Response } from 'express';
+import { CustomError } from '../config/errors';
+import { logger } from '../config/winston';
 
 /**
  * Global error handler for Express that intercepts and standardizes error responses.
@@ -10,15 +10,13 @@ import { logger } from '../../utils/logger';
  * @param err - Error object potentially containing `status` and `message`.
  * @param req - Express Request object, not directly used here.
  * @param res - Express Response object for sending the error response.
- * @param next - Next function for passing execution to the next middleware (not used here but required for error handlers).
  */
 type ErrorHandlerError = Error | CustomError;
 
 export const globalErrorHandler = (
   err: ErrorHandlerError | null | undefined,
   req: Request,
-  res: Response,
-  next: NextFunction
+  res: Response
 ) => {
   if (err instanceof CustomError) {
     logger.error(`${err.constructor.name}: ${err.message}`);

@@ -1,128 +1,155 @@
 import { Request, Response, NextFunction } from 'express';
-import {
-  findOrCreateShortUrl,
-  findShortUrl,
-  getAccessCountForShortUrl,
-} from '../services/urlServices';
-import { AccessLogModel } from '../models/accessLogs.model';
-import { RedisClientType } from 'redis';
-import { logger } from '../../utils/logger';
+import { urlService, cacheService } from '../services';
+import { logger } from '../../../config/winston';
 
-/**
- * Creates a short url for a given long url and stores it in the database.
- * @param req - The request object containing body 'longUrl'.
- * @param res - The response object used to send back a short URL or send back an error.
- * @param next - The next middleware function in the stack.
- */
-export const createShortUrl = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const { longUrl } = req.body;
-    const shortUrlId = await findOrCreateShortUrl(longUrl);
+const BASE_URL = process.env.BASE_URL || 'www.shorturl.com';
+const DEFAULT_CACHE_EXPIRATION = parseInt(
+  process.env.REDIS_EXPIRATION_TIME_LONGURL || '604800',
+  10
+); // 1 week
+const HTTP_STATUS_MOVED_PERMANENTLY = 301;
 
-    const baseUrl = process.env.BASE_URL || 'www.shorturl.com';
+class UrlController {
+  constructor(
+    private readonly urlService = urlService,
+    private readonly cacheService = cacheService
+  ) {}
 
-    res.status(201).json({ shortUrl: `${baseUrl}/${shortUrlId}` });
-  } catch (err) {
-    return next(err);
+  /**
+   * Handles the creation of a short URL.
+   */
+  public createShortUrl = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const { longUrl } = req.body;
+      if (!longUrl) {
+        res.status(400).json({ error: 'longUrl is required' });
+        return;
+      }
+      const shortUrlId = await this.urlService.findOrCreateShortUrl(longUrl);
+      res.status(201).json({ shortUrl: `${BASE_URL}/${shortUrlId}` });
+    } catch (error) {
+      logger.error('Error creating short URL:', error);
+      next(error);
+    }
+  };
+
+  /**
+   * Redirects to the long URL from a short URL, with caching.
+   */
+  public redirectToLongUrl = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    const { shortUrlId } = req.params;
+
+    if (!shortUrlId) {
+      res.status(400).json({ error: 'shortUrlId is required' });
+      return;
+    }
+
+    try {
+      await this.urlService.logAccess(shortUrlId);
+
+      const cachedLongUrl = await this.cacheService.get(
+        `shortUrl:${shortUrlId}`
+      );
+      if (cachedLongUrl) {
+        logger.info(`Cache hit for shortUrlId: ${shortUrlId}`);
+        return res.redirect(HTTP_STATUS_MOVED_PERMANENTLY, cachedLongUrl);
+      }
+
+      logger.info(`Cache miss for shortUrlId: ${shortUrlId}`);
+      const urlDocument = await this.urlService.findShortUrl(shortUrlId);
+      const longUrl = urlDocument.longUrl;
+
+      if (!longUrl) {
+        throw new Error('Long URL not found in the document');
+      }
+
+      await this.cacheService.set(
+        `shortUrl:${shortUrlId}`,
+        longUrl,
+        DEFAULT_CACHE_EXPIRATION
+      );
+
+      res.redirect(HTTP_STATUS_MOVED_PERMANENTLY, longUrl);
+    } catch (error) {
+      logger.error(`Error redirecting short URL ${shortUrlId}:`, error);
+      next(error);
+    }
+  };
+
+  /**
+   * Generates and provides analytics data for a short URL.
+   */
+  public generateAnalytics = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    const { shortUrlId, timeFrame } = req.query as {
+      shortUrlId: string;
+      timeFrame?: string;
+    };
+
+    if (!shortUrlId) {
+      res.status(400).json({ error: 'shortUrlId is required' });
+      return;
+    }
+
+    try {
+      const cacheKey = `analytics:${shortUrlId}:${timeFrame || 'all'}`;
+      const cachedData = await this.cacheService.get(cacheKey);
+
+      if (cachedData) {
+        logger.info(`Cache hit for analytics key: ${cacheKey}`);
+        res.status(200).json(JSON.parse(cachedData));
+        return;
+      }
+
+      logger.info(`Cache miss for analytics key: ${cacheKey}`);
+      const accessCount = await this.urlService.getAccessCountForShortUrl(
+        shortUrlId,
+        timeFrame || 'all'
+      );
+      const expirationTime = this.calculateCacheExpirationTime(timeFrame);
+      await this.cacheService.set(
+        cacheKey,
+        JSON.stringify({ timeFrame, accessCount }),
+        expirationTime
+      );
+
+      res.status(200).json({ timeFrame, accessCount });
+    } catch (error) {
+      logger.error(
+        `Error generating analytics for short URL ${shortUrlId}:`,
+        error
+      );
+      next(error);
+    }
+  };
+
+  /**
+   * Calculates the appropriate cache expiration time based on the provided time frame.
+   */
+  private calculateCacheExpirationTime(timeFrame?: string): number {
+    switch (timeFrame) {
+      case '24h':
+        return 1800; // 30 minutes
+      case '7d':
+        return 21600; // 6 hours
+      default:
+        return 86400; // 24 hours
+    }
   }
-};
+}
 
-/**
- * Redirects a short URL to its corresponding long URL.
- * Utilizes caching to improve performance by storing frequently accessed URLs.
- * @param req - The request object containing path param 'shortUrlId'.
- * @param res - The response object used to redirect to the long URL or send back an error.
- * @param next - The next middleware function in the stack.
- */
-export const redirectToLongUrl = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const { shortUrlId } = req.params;
-  const { redisClient } = req.app.locals;
+const urlController = new UrlController(urlService, cacheService);
 
-  try {
-    const accessLogDocument = new AccessLogModel({ shortUrlId });
-    await accessLogDocument.save();
-
-    const cachedUrl = await redisClient.get(`shortUrl:${shortUrlId}`);
-
-    if (cachedUrl) {
-      logger.info('Cache hit');
-      return res.redirect(301, cachedUrl);
-    }
-
-    logger.info('Cache miss');
-    const urlDocument = await findShortUrl(shortUrlId);
-
-    await redisClient.set(`shortUrl:${shortUrlId}`, urlDocument.longUrl, {
-      EX: process.env.REDIS_EXPIRATION_TIME_LONGURL || 604800, // 1 week,
-    });
-
-    res.redirect(301, urlDocument.longUrl);
-  } catch (err) {
-    return next(err);
-  }
-};
-
-/**
- * Generates and returns analytics data for a given short URL based on the requested time frame.
- * Utilizes caching to improve performance by storing frequently accessed access counts.
- * @param req - The request object containing query parameters 'shortUrlId' and 'timeFrame'.
- * @param res - The response object used to send back analytics data or send back an error.
- * @param next - The next middleware function in the stack.
- */
-export const generateAnalytics = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const shortUrlId = req.query.shortUrlId as string;
-    let timeFrame = req.query.timeFrame;
-    if (!timeFrame || (timeFrame !== '24h' && timeFrame !== '7d')) {
-      timeFrame = 'all';
-    }
-    const redisClient: RedisClientType = req.app.locals.redisClient;
-
-    const cacheKey = `analytics:${shortUrlId}:${timeFrame}`;
-    const cachedData = await redisClient.get(cacheKey);
-
-    if (cachedData) {
-      logger.info('Cache hit');
-      return res.status(200).json(JSON.parse(cachedData));
-    }
-
-    logger.info('Cache miss');
-    await findShortUrl(shortUrlId);
-    const count = await getAccessCountForShortUrl(shortUrlId, timeFrame);
-
-    let expirationTime;
-    if (timeFrame === 'all' || !req.query.timeFrame) {
-      expirationTime =
-        process.env.REDIS_EXPIRATION_TIME_ACCESSLOGS_ALL || 86400; // 24 hrs
-    } else if (timeFrame === '7d') {
-      expirationTime = process.env.REDIS_EXPIRATION_TIME_ACCESSLOGS_7D || 21600; // 6 hrs
-    } else if (timeFrame === '24h') {
-      expirationTime = process.env.REDIS_EXPIRATION_TIME_ACCESSLOGS_24H || 1800; // 30 mins
-    } else {
-      expirationTime =
-        process.env.REDIS_EXPIRATION_TIME_ACCESSLOGS_DEFAULT || 3600; // 1 hr
-    }
-
-    await redisClient.set(
-      cacheKey,
-      JSON.stringify({ timeFrame, accessCount: count }),
-      { EX: Number(expirationTime) }
-    );
-
-    res.status(200).json({ timeFrame, accessCount: count });
-  } catch (err) {
-    return next(err);
-  }
-};
+export const { createShortUrl, redirectToLongUrl, generateAnalytics } =
+  urlController;
