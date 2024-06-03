@@ -2,7 +2,7 @@ import { RedisClientType } from 'redis';
 import { createClient } from 'redis';
 import { logger } from '../../../config/winston';
 
-export class CacheService {
+export default class CacheService {
   private client: RedisClientType;
 
   constructor() {

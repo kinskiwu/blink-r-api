@@ -8,21 +8,16 @@ import {
 } from '../../../config/errors';
 import { logger } from '../../../config/winston';
 import DatabaseService from './databaseService';
-import { UrlModel } from '../models/urls.model';
-import { AccessLogModel } from '../models/accessLogs.model';
 
 interface AccessCountResult {
   count: number;
 }
 
 export default class UrlService {
-  private readonly urlDatabaseService: DatabaseService<Url>;
-  private readonly accessLogDatabaseService: DatabaseService<AccessLog>;
-
-  constructor() {
-    this.urlDatabaseService = new DatabaseService(UrlModel);
-    this.accessLogDatabaseService = new DatabaseService(AccessLogModel);
-  }
+  constructor(
+    private readonly urlDatabaseService: DatabaseService<Url>,
+    private readonly accessLogDatabaseService: DatabaseService<AccessLog>
+  ) {}
 
   /**
    * Generates a short URL identifier using a UUID and encodes it to Base62.

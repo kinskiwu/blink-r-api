@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import UrlService from '../services/urlService';
-import { CacheService } from '../services/cacheService';
+import { urlService, cacheService } from '../services';
 import { logger } from '../../../config/winston';
 
 const BASE_URL = process.env.BASE_URL || 'www.shorturl.com';
@@ -12,8 +11,8 @@ const HTTP_STATUS_MOVED_PERMANENTLY = 301;
 
 class UrlController {
   constructor(
-    private readonly urlService: UrlService,
-    private readonly cacheService: CacheService
+    private readonly urlService = urlService,
+    private readonly cacheService = cacheService
   ) {}
 
   /**
@@ -150,11 +149,6 @@ class UrlController {
   }
 }
 
-// Initialize services
-const urlService = new UrlService();
-const cacheService = new CacheService();
-
-// Initialize controller
 const urlController = new UrlController(urlService, cacheService);
 
 export const { createShortUrl, redirectToLongUrl, generateAnalytics } =
